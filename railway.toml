@@ -3,4 +3,4 @@ builder = "railway-php"
 
 [php]
 version = "8.2"
-extensions = ["gd", "ctype", "curl", "dom", "fileinfo", "filter", "hash", "mbstring", "openssl", "pcre", "pdo", "session", "tokenizer", "xml"]
+extensions = ["gd"]
