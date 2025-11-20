@@ -13,14 +13,15 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    libzip-dev \
     zip unzip git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install GD extension
+# Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd
+    && docker-php-ext-install gd zip
 
-# Copy composer from stage 1
+# Copy composer
 COPY --from=composer_stage /usr/bin/composer /usr/bin/composer
 
 # Copy app
@@ -35,4 +36,7 @@ RUN npm ci && npm run build
 
 # Laravel cache
 RUN php artisan config:cache && \
-    php
+    php artisan route:cache && \
+    php artisan view:cache
+
+CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
