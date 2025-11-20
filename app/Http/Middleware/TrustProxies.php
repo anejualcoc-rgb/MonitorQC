@@ -10,29 +10,19 @@ class TrustProxies extends Middleware
     /**
      * The trusted proxies for this application.
      *
-     * @var array|string|null
+     * @var array<int, string>|string|null
      */
-    protected $proxies = [
-        '10.0.0.0/8',
-        '127.0.0.0/8',
-        '172.16.0.0/12', 
-        '192.168.0.0/16',
-        '::1',
-        '10.0.0.0/8',
-        '172.16.0.0/12',
-        '192.168.0.0/16',
-        '0.0.0.0/0'  // Trust all proxies - untuk Railway
-    ];
+    protected $proxies = '*';
 
     /**
      * The headers that should be used to detect proxies.
      *
      * @var int
      */
-    protected $headers = Request::HEADER_X_FORWARDED_FOR |
-                       Request::HEADER_X_FORWARDED_HOST |
-                       Request::HEADER_X_FORWARDED_PORT |
-                       Request::HEADER_X_FORWARDED_PROTO |
-                       Request::HEADER_X_FORWARDED_PREFIX |
-                       Request::HEADER_X_FORWARDED_AWS_ELB;
+    protected $headers =
+        Request::HEADER_X_FORWARDED_FOR |
+        Request::HEADER_X_FORWARDED_HOST |
+        Request::HEADER_X_FORWARDED_PORT |
+        Request::HEADER_X_FORWARDED_PROTO |
+        Request::HEADER_X_FORWARDED_AWS_ELB;
 }
