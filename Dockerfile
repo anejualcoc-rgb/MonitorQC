@@ -59,10 +59,6 @@ COPY --from=node_stage /app/public/build ./public/build
 # copy vendor from composer_stage
 COPY --from=composer_stage /app/vendor ./vendor
 
-# laravel cache
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
 
 EXPOSE 8080
 
