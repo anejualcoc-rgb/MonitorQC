@@ -1,3 +1,11 @@
+# ---------------------------
+# Stage 1: Composer
+# ---------------------------
+FROM composer:2 AS composer_stage
+
+# ---------------------------
+# Stage 2: FrankenPHP
+# ---------------------------
 FROM dunglas/frankenphp:php8.2.29-bookworm
 
 # Install system libs
@@ -8,24 +16,23 @@ RUN apt-get update && apt-get install -y \
     zip unzip git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
+# Install GD extension
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd
 
-# Copy Laravel files
+# Copy composer from stage 1
+COPY --from=composer_stage /usr/bin/composer /usr/bin/composer
+
+# Copy app
 COPY . /app
 WORKDIR /app
 
-# Install composer dependencies
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Build assets
+# Build front-end
 RUN npm ci && npm run build
 
 # Laravel cache
 RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
-
-# Start server
-CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
+    php
