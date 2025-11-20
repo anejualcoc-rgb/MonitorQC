@@ -19,7 +19,6 @@ WORKDIR /app
 
 COPY composer.json composer.lock ./
 
-# FIX: skip artisan scripts + skip ext-gd check
 RUN composer install \
     --no-dev \
     --no-scripts \
@@ -43,9 +42,13 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) gd zip pdo_mysql
 
 WORKDIR /app
+
+# ---------------------------------------
+# 🔥 Tambahkan ini di bawah WORKDIR /app
+# ---------------------------------------
 ENV LOG_CHANNEL=stderr
 ENV LOG_LEVEL=debug
-
+# ---------------------------------------
 
 # copy full project
 COPY . .
@@ -55,6 +58,14 @@ COPY --from=node_stage /app/public/build ./public/build
 
 # copy vendor from composer_stage
 COPY --from=composer_stage /app/vendor ./vendor
+
+RUN echo "APP_KEY=${APP_KEY}" >> .env && \
+    echo "DB_CONNECTION=${DB_CONNECTION}" >> .env && \
+    echo "DB_HOST=${DB_HOST}" >> .env && \
+    echo "DB_PORT=${DB_PORT}" >> .env && \
+    echo "DB_DATABASE=${DB_DATABASE}" >> .env && \
+    echo "DB_USERNAME=${DB_USERNAME}" >> .env && \
+    echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
 
 # laravel cache
 RUN php artisan config:cache && \
