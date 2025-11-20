@@ -1,6 +1,0 @@
-[build]
-builder = "railway-php"
-
-[php]
-version = "8.2"
-extensions = ["gd"]
