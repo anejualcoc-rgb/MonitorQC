@@ -1,5 +1,5 @@
 {
-    php_extensions gd zip
+    php_extensions gd 
 }
 
 :8080
