@@ -1,22 +1,32 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace App\Providers;
 
-use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Schema;
 
-class ForceHttpsMiddleware
+class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Handle an incoming request.
+     * Register any application services.
      */
-    public function handle(Request $request, Closure $next): Response
+    public function register(): void
     {
-        if (!$request->secure() && app()->environment('production')) {
-            return redirect()->secure($request->getRequestUri());
-        }
+        //
+    }
 
-        return $next($request);
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        // Fix untuk MySQL old versions
+        Schema::defaultStringLength(191);
+        
+        // Force HTTPS in production
+        if ($this->app->environment('production') || $this->app->environment('staging')) {
+            URL::forceScheme('https');
+        }
     }
 }
