@@ -10,6 +10,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
+
 # ---------------------------------------
 # Stage 2: Composer dependencies
 # ---------------------------------------
@@ -18,11 +19,17 @@ WORKDIR /app
 
 COPY composer.json composer.lock ./
 
-# FIX: ignore ext-gd requirements here
-RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=ext-gd
+# FIX: skip artisan scripts + skip ext-gd check
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --optimize-autoloader \
+    --no-interaction \
+    --ignore-platform-req=ext-gd
+
 
 # ---------------------------------------
-# Stage 3: FrankenPHP runtime
+# Stage 3: Runtime (FrankenPHP)
 # ---------------------------------------
 FROM dunglas/frankenphp:php8.2-bookworm
 
@@ -37,13 +44,20 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
 
 WORKDIR /app
 
+# copy full project
 COPY . .
+
+# copy node build
 COPY --from=node_stage /app/public/build ./public/build
+
+# copy vendor from composer_stage
 COPY --from=composer_stage /app/vendor ./vendor
 
+# laravel cache
 RUN php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache
 
 EXPOSE 8080
+
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
