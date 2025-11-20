@@ -43,6 +43,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) gd zip pdo_mysql
 
 WORKDIR /app
+ENV LOG_CHANNEL=stderr
+ENV LOG_LEVEL=debug
+
 
 # copy full project
 COPY . .
