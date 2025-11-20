@@ -17,36 +17,30 @@ FROM composer:2 AS composer_stage
 WORKDIR /app
 
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# FIX: ignore ext-gd requirements here
+RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=ext-gd
 
 # ---------------------------------------
 # Stage 3: FrankenPHP runtime
 # ---------------------------------------
 FROM dunglas/frankenphp:php8.2-bookworm
 
-# Install system packages (fast)
 RUN apt-get update && apt-get install -y \
     libzip-dev zip unzip \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) gd zip pdo_mysql
 
 WORKDIR /app
 
-# Copy app source
 COPY . .
-
-# Copy frontend build from node
 COPY --from=node_stage /app/public/build ./public/build
-
-# Copy vendor directory from composer
 COPY --from=composer_stage /app/vendor ./vendor
 
-# Laravel optimize
 RUN php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache
