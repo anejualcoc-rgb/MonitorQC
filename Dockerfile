@@ -19,6 +19,7 @@ WORKDIR /app
 
 COPY composer.json composer.lock ./
 
+# FIX: skip artisan scripts + skip ext-gd check
 RUN composer install \
     --no-dev \
     --no-scripts \
@@ -42,28 +43,24 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) gd zip pdo_mysql
 
 WORKDIR /app
+ENV LOG_CHANNEL=stderr
+ENV LOG_LEVEL=debug
 
-# Copy full Laravel project
+
+# copy full project
 COPY . .
 
-# Copy built frontend assets
+# copy node build
 COPY --from=node_stage /app/public/build ./public/build
 
-# Copy vendor from composer stage
+# copy vendor from composer_stage
 COPY --from=composer_stage /app/vendor ./vendor
 
-# Clear caches to avoid cached errors
-RUN php artisan config:clear && \
-    php artisan route:clear && \
-    php artisan view:clear
-
-# Rebuild cache
+# laravel cache
 RUN php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache
 
-# Expose port
 EXPOSE 8080
 
-# Run Laravel via FrankenPHP (NOT artisan serve)
-CMD ["frankenphp", "run", "--config=frankenphp.json"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]

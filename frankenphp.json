@@ -1,8 +1,0 @@
-{
-  "workers": [
-    {
-      "type": "laravel",
-      "root": "/app/public"
-    }
-  ]
-}
