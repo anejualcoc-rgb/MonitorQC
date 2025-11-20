@@ -3,37 +3,53 @@
 # ---------------------------------------
 FROM node:18 AS node_stage
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm ci
+
 COPY . .
 RUN npm run build
 
 # ---------------------------------------
-# Stage 2: PHP (FrankenPHP)
+# Stage 2: Composer dependencies
 # ---------------------------------------
-FROM dunglas/frankenphp:php8.2
+FROM composer:2 AS composer_stage
+WORKDIR /app
 
-# Install system dependencies
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# ---------------------------------------
+# Stage 3: FrankenPHP runtime
+# ---------------------------------------
+FROM dunglas/frankenphp:php8.2-bookworm
+
+# Install system packages (fast)
 RUN apt-get update && apt-get install -y \
-    libpng-dev libjpeg-dev libfreetype6-dev zip unzip git \
+    libzip-dev zip unzip \
+    libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install -j$(nproc) gd zip pdo_mysql
 
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Copy app
 WORKDIR /app
+
+# Copy app source
 COPY . .
 
-# Copy frontend build hasil dari Node.js stage
+# Copy frontend build from node
 COPY --from=node_stage /app/public/build ./public/build
 
-# Install PHP deps
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Copy vendor directory from composer
+COPY --from=composer_stage /app/vendor ./vendor
 
-# Laravel cache
-RUN php artisan config:cache && php artisan route:cache
+# Laravel optimize
+RUN php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache
+
+EXPOSE 8080
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
