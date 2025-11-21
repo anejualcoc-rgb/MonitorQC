@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
     {
 
     User::updateOrCreate(
-        ['email' => 'spvqc@gmail.com'],
+        ['email' => 'spvqc@sehatiapp.com'],
         [
             'name' => 'Supervisor QC',
             'password' => Hash::make('spv123'),
@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
     );
 
     User::updateOrCreate(
-        ['email' => 'staffqc@gmail.com'],
+        ['email' => 'staffqc@sehatiapp.com'],
         [
             'name' => 'Staff QC',
             'password' => Hash::make('staff123'),
