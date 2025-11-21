@@ -41,15 +41,16 @@
     <style>
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
+            gap: 1.5rem;
             margin-top: 2rem;
+            padding: 0 1rem;
         }
 
         .input-card {
             background: white;
             border-radius: 16px;
-            padding: 2rem;
+            padding: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
             transition: all 0.3s ease;
         }
@@ -63,19 +64,20 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             padding-bottom: 1.5rem;
             border-bottom: 2px solid #f3f4f6;
         }
 
         .card-icon {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 24px;
+            flex-shrink: 0;
         }
 
         .card-icon.blue {
@@ -88,11 +90,18 @@
             color: white;
         }
 
+        .card-title-section {
+            flex: 1;
+            min-width: 0;
+        }
+
         .card-title-section h3 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: #1f2937;
             margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .card-title-section p {
@@ -121,6 +130,7 @@
             font-size: 0.9375rem;
             transition: all 0.2s ease;
             background: #f9fafb;
+            box-sizing: border-box;
         }
 
         .form-control:focus {
@@ -137,7 +147,7 @@
 
         .form-row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
             gap: 1rem;
         }
 
@@ -172,6 +182,12 @@
             transform: translateY(0);
         }
 
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         select.form-control {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
@@ -180,16 +196,165 @@
             padding-right: 2.5rem;
         }
 
-        @media (max-width: 1200px) {
-            .input-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .form-hint {
             font-size: 0.75rem;
             color: #9ca3af;
             margin-top: 0.25rem;
+        }
+
+        .page-header {
+            padding: 0 1rem;
+        }
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .input-grid {
+                gap: 1.25rem;
+            }
+
+            .input-card {
+                padding: 1.25rem;
+            }
+
+            .card-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 22px;
+            }
+
+            .card-title-section h3 {
+                font-size: 1.125rem;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 0 0.5rem;
+                margin-top: 1.5rem;
+            }
+
+            .input-card {
+                padding: 1rem;
+                border-radius: 12px;
+            }
+
+            .card-header-input {
+                gap: 0.75rem;
+                margin-bottom: 1.25rem;
+                padding-bottom: 1rem;
+            }
+
+            .card-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .card-title-section h3 {
+                font-size: 1rem;
+            }
+
+            .card-title-section p {
+                font-size: 0.8125rem;
+            }
+
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
+
+            .form-label {
+                font-size: 0.8125rem;
+            }
+
+            .form-control {
+                padding: 0.625rem 0.875rem;
+                font-size: 0.875rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .submit-btn {
+                padding: 0.875rem;
+                font-size: 0.9375rem;
+            }
+
+            .page-header {
+                padding: 0 0.5rem;
+            }
+
+            .page-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .page-header .date {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .input-card {
+                padding: 0.875rem;
+            }
+
+            .card-header-input {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .card-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+
+            .form-control {
+                font-size: 0.8125rem;
+            }
+
+            .form-hint {
+                font-size: 0.6875rem;
+            }
+
+            select.form-control {
+                background-position: right 0.75rem center;
+                padding-right: 2rem;
+            }
+        }
+
+        /* Prevent horizontal scroll */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Touch-friendly inputs on mobile */
+        @media (max-width: 768px) {
+            .form-control,
+            .submit-btn {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            input[type="number"] {
+                -moz-appearance: textfield;
+            }
         }
     </style>
 
@@ -205,7 +370,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('data.store') }}" method="POST" style="padding: 0 1rem 1rem;">
+            <form action="{{ route('data.store') }}" method="POST">
                 @csrf
                 
                 <div class="form-group">
@@ -312,21 +477,8 @@
 
                     <input type="text" id="jenis_defect_lainnya" name="Jenis_Defect_Lainnya"
                         class="form-control mt-2" placeholder="Masukkan jenis defect lainnya"
-                        style="display:none;">
+                        style="display:none; margin-top: 0.5rem;">
                 </div>
-
-                <script>
-                    document.getElementById('jenis_defect').addEventListener('change', function () {
-                        var lainnyaInput = document.getElementById('jenis_defect_lainnya');
-                        if (this.value === 'Lainnya') {
-                            lainnyaInput.style.display = 'block';
-                            lainnyaInput.required = true;
-                        } else {
-                            lainnyaInput.style.display = 'none';
-                            lainnyaInput.required = false;
-                        }
-                    });
-                </script>
 
                 <div class="form-row">
                     <div class="form-group">
@@ -372,6 +524,18 @@
             btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Menyimpan...';
             btn.disabled = true;
         });
+    });
+
+    // Handle jenis defect lainnya
+    document.getElementById('jenis_defect').addEventListener('change', function () {
+        var lainnyaInput = document.getElementById('jenis_defect_lainnya');
+        if (this.value === 'Lainnya') {
+            lainnyaInput.style.display = 'block';
+            lainnyaInput.required = true;
+        } else {
+            lainnyaInput.style.display = 'none';
+            lainnyaInput.required = false;
+        }
     });
 </script>
 @endpush
