@@ -14,16 +14,21 @@ RUN npm run build
 # ---------------------------------------
 # Stage 2: Composer dependencies
 # ---------------------------------------
-FROM composer:2.8 AS composer_stage
+FROM php:8.2-cli AS composer_stage
 WORKDIR /app
 
-# Install PHP 8.2 dan extensions yang diperlukan
-RUN apk add --no-cache php82 php82-zip php82-gd php82-pdo php82-pdo_mysql
+# Install composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Install zip extension (required by composer)
+RUN apt-get update && apt-get install -y \
+    libzip-dev unzip git \
+    && docker-php-ext-install zip \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY composer.json composer.lock ./
 
-# Gunakan PHP 8.2 untuk menjalankan composer
-RUN php82 /usr/bin/composer install \
+RUN composer install \
     --no-dev \
     --no-scripts \
     --optimize-autoloader \
