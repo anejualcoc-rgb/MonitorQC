@@ -44,7 +44,7 @@
             grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
             gap: 1.5rem;
             margin-top: 2rem;
-            padding: 0 1rem;
+            padding: 0 1rem 3rem 1rem;
         }
 
         .input-card {
