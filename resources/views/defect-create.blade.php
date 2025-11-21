@@ -1,102 +1,66 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Data Produksi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+@extends('layouts.app')
+
+@section('title', 'Input Data Produksi')
+
+@section('content')
+    @if(session('success'))
+        <div class="alert-modern success">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert-modern error">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>{{ session('error') }}</span>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert-modern error">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+                <strong>Terdapat kesalahan:</strong>
+                <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
+    <div class="page-header">
+        <h2>Input Data Produksi</h2>
+        <div class="date">
+            <i class="bi bi-calendar3"></i> {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+        </div>
+    </div>
+
     <style>
-        /* Reset dan base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
-            line-height: 1.5;
-            overflow-x: hidden;
-            padding-bottom: 2rem; /* Tambahan padding untuk mencegah terpotong */
-        }
 
-        /* Alert Styles */
-        .alert-modern {
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin: 1rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            animation: slideIn 0.3s ease-out;
-        }
+        .input-grid {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
 
-        .alert-modern.success {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #166534;
-        }
+        @media (max-width: 768px) {
+    .input-grid {
+        padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    }
 
-        .alert-modern.error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
-        }
-
-        .alert-modern i {
-            font-size: 1.25rem;
-            flex-shrink: 0;
-            margin-top: 0.125rem;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Page Header */
-        .page-header {
-            padding: 1.5rem 1rem 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .page-header h2 {
-            font-size: 1.875rem;
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .page-header .date {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #64748b;
-            font-size: 0.9375rem;
-        }
-
-        /* Main Grid Layout - PERUBAHAN UTAMA */
+    .submit-btn {
+        margin-bottom: env(safe-area-inset-bottom);
+    }
+}
         .input-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
             gap: 1.5rem;
-            margin: 1.5rem 1rem 3rem; /* Margin bawah ditambah */
-            padding: 0 0 2rem; /* Padding bawah ditambah */
-            min-height: auto;
+            margin-top: 2rem;
+            padding: 0 1rem 3rem 1rem;
         }
 
-        /* Card Styles */
         .input-card {
             background: white;
             border-radius: 16px;
@@ -160,7 +124,6 @@
             margin: 0.25rem 0 0 0;
         }
 
-        /* Form Styles */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -202,7 +165,6 @@
             gap: 1rem;
         }
 
-        /* Button Styles - PERUBAHAN PENTING */
         .submit-btn {
             width: 100%;
             padding: 1rem;
@@ -213,7 +175,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 1rem;
-            position: relative;
         }
 
         .submit-btn.blue {
@@ -255,7 +216,10 @@
             margin-top: 0.25rem;
         }
 
-        /* Responsive Design */
+        .page-header {
+            padding: 0 1rem;
+        }
+
         /* Tablet */
         @media (max-width: 1024px) {
             .input-grid {
@@ -282,8 +246,8 @@
             .input-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
-                margin: 1rem 0.5rem 2.5rem; /* Margin bawah ditambah untuk mobile */
-                padding: 0 0 1.5rem; /* Padding bawah ditambah untuk mobile */
+                padding: 0 0.5rem;
+                margin-top: 1.5rem;
             }
 
             .input-card {
@@ -332,11 +296,10 @@
             .submit-btn {
                 padding: 0.875rem;
                 font-size: 0.9375rem;
-                margin-bottom: 0.5rem; /* Margin bawah untuk button */
             }
 
             .page-header {
-                padding: 1rem 0.5rem 0.5rem;
+                padding: 0 0.5rem;
             }
 
             .page-header h2 {
@@ -380,6 +343,15 @@
             }
         }
 
+        /* Prevent horizontal scroll */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
         /* Touch-friendly inputs on mobile */
         @media (max-width: 768px) {
             .form-control,
@@ -399,42 +371,6 @@
             }
         }
     </style>
-</head>
-<body>
-    @if(session('success'))
-        <div class="alert-modern success">
-            <i class="bi bi-check-circle-fill"></i>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert-modern error">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            <span>{{ session('error') }}</span>
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="alert-modern error">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            <div>
-                <strong>Terdapat kesalahan:</strong>
-                <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
-    @endif
-
-    <div class="page-header">
-        <h2>Input Data Produksi</h2>
-        <div class="date">
-            <i class="bi bi-calendar3"></i> {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
-        </div>
-    </div>
 
     <div class="input-grid">
         <div class="input-card">
@@ -583,36 +519,37 @@
             </form>
         </div>
     </div>
+@endsection
 
-    <script>
-        // Auto-dismiss alerts after 5 seconds
-        setTimeout(() => {
-            document.querySelectorAll('.alert-modern').forEach(alert => {
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 300);
-            });
-        }, 5000);
-
-        // Add animation when form is submitted
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const btn = this.querySelector('.submit-btn');
-                btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Menyimpan...';
-                btn.disabled = true;
-            });
+@push('scripts')
+<script>
+    // Auto-dismiss alerts after 5 seconds
+    setTimeout(() => {
+        document.querySelectorAll('.alert-modern').forEach(alert => {
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 300);
         });
+    }, 5000);
 
-        // Handle jenis defect lainnya
-        document.getElementById('jenis_defect').addEventListener('change', function () {
-            var lainnyaInput = document.getElementById('jenis_defect_lainnya');
-            if (this.value === 'Lainnya') {
-                lainnyaInput.style.display = 'block';
-                lainnyaInput.required = true;
-            } else {
-                lainnyaInput.style.display = 'none';
-                lainnyaInput.required = false;
-            }
+    // Add animation when form is submitted
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const btn = this.querySelector('.submit-btn');
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Menyimpan...';
+            btn.disabled = true;
         });
-    </script>
-</body>
-</html>
+    });
+
+    // Handle jenis defect lainnya
+    document.getElementById('jenis_defect').addEventListener('change', function () {
+        var lainnyaInput = document.getElementById('jenis_defect_lainnya');
+        if (this.value === 'Lainnya') {
+            lainnyaInput.style.display = 'block';
+            lainnyaInput.required = true;
+        } else {
+            lainnyaInput.style.display = 'none';
+            lainnyaInput.required = false;
+        }
+    });
+</script>
+@endpush
