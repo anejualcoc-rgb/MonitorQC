@@ -14,12 +14,16 @@ RUN npm run build
 # ---------------------------------------
 # Stage 2: Composer dependencies
 # ---------------------------------------
-FROM composer:2 AS composer_stage
+FROM composer:2.8 AS composer_stage
 WORKDIR /app
+
+# Install PHP 8.2 dan extensions yang diperlukan
+RUN apk add --no-cache php82 php82-zip php82-gd php82-pdo php82-pdo_mysql
 
 COPY composer.json composer.lock ./
 
-RUN composer install \
+# Gunakan PHP 8.2 untuk menjalankan composer
+RUN php82 /usr/bin/composer install \
     --no-dev \
     --no-scripts \
     --optimize-autoloader \
@@ -43,12 +47,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
 
 WORKDIR /app
 
-# ---------------------------------------
-# 🔥 Tambahkan ini di bawah WORKDIR /app
-# ---------------------------------------
 ENV LOG_CHANNEL=stderr
 ENV LOG_LEVEL=debug
-# ---------------------------------------
 
 # copy full project
 COPY . .
