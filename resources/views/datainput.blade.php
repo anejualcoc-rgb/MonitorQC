@@ -32,76 +32,178 @@
     @endif
 
     <div class="page-header">
-        <h2>Input Data Produksi</h2>
-        <div class="date">
-            <i class="bi bi-calendar3"></i> {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+        <div class="header-content">
+            <div class="header-text">
+                <h2>Input Data Produksi</h2>
+                <p class="header-subtitle">Kelola data produksi dan defect dengan mudah</p>
+            </div>
+            <div class="date-badge">
+                <i class="bi bi-calendar3"></i>
+                <span>{{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</span>
+            </div>
         </div>
     </div>
 
     <style>
+        :root {
+            --primary-blue: #4f46e5;
+            --primary-blue-light: #6366f1;
+            --primary-blue-dark: #4338ca;
+            --primary-red: #ef4444;
+            --primary-red-light: #f87171;
+            --primary-red-dark: #dc2626;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-gradient-red: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
 
-        .input-grid {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-        @media (max-width: 768px) {
-    .input-grid {
-        padding-bottom: calc(100px + env(safe-area-inset-bottom));
-    }
+        body {
+            overflow-x: hidden;
+            background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+        }
 
-    .submit-btn {
-        margin-bottom: env(safe-area-inset-bottom);
-    }
-}
+        .page-header {
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .header-text h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .header-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin: 0.5rem 0 0 0;
+            font-weight: 500;
+        }
+
+        .date-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            box-shadow: var(--shadow-md);
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .date-badge i {
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+        }
+
         .input-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-            padding: 0 1rem 3rem 1rem;
+            gap: 2rem;
+            padding: 0 1.5rem 5rem 1.5rem;
         }
 
         .input-card {
             background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #e2e8f0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .input-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
             transition: all 0.3s ease;
         }
 
+        .input-card.blue::before {
+            background: var(--bg-gradient);
+        }
+
+        .input-card.red::before {
+            background: var(--bg-gradient-red);
+        }
+
         .input-card:hover {
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+            border-color: #cbd5e1;
         }
 
         .card-header-input {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
             padding-bottom: 1.5rem;
-            border-bottom: 2px solid #f3f4f6;
+            border-bottom: 2px solid #f1f5f9;
         }
 
         .card-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 26px;
             flex-shrink: 0;
+            position: relative;
+            box-shadow: var(--shadow-md);
         }
 
         .card-icon.blue {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-gradient);
             color: white;
         }
 
         .card-icon.red {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: var(--bg-gradient-red);
             color: white;
+        }
+
+        .card-icon::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 18px;
+            padding: 2px;
+            background: inherit;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.3;
         }
 
         .card-title-section {
@@ -110,18 +212,18 @@
         }
 
         .card-title-section h3 {
-            font-size: 1.25rem;
+            font-size: 1.375rem;
             font-weight: 700;
-            color: #1f2937;
+            color: #0f172a;
             margin: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            letter-spacing: -0.01em;
         }
 
         .card-title-section p {
             font-size: 0.875rem;
-            color: #6b7280;
-            margin: 0.25rem 0 0 0;
+            color: #64748b;
+            margin: 0.375rem 0 0 0;
+            font-weight: 500;
         }
 
         .form-group {
@@ -129,146 +231,252 @@
         }
 
         .form-label {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
+            color: #334155;
+            margin-bottom: 0.625rem;
             font-size: 0.875rem;
+            letter-spacing: 0.01em;
         }
 
         .form-control {
             width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 0.875rem 1.125rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             font-size: 0.9375rem;
             transition: all 0.2s ease;
-            background: #f9fafb;
+            background: #fafafa;
             box-sizing: border-box;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #6366f1;
+            border-color: var(--primary-blue);
             background: white;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
 
-        .form-control:hover {
-            border-color: #d1d5db;
+        .form-control:hover:not(:focus) {
+            border-color: #cbd5e1;
             background: white;
         }
 
         .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
         .submit-btn {
             width: 100%;
-            padding: 1rem;
+            padding: 1.125rem 1.5rem;
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            border-radius: 12px;
+            font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            letter-spacing: 0.02em;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .submit-btn:hover::before {
+            transform: translateX(100%);
         }
 
         .submit-btn.blue {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-gradient);
             color: white;
         }
 
         .submit-btn.red {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: var(--bg-gradient-red);
             color: white;
         }
 
         .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-xl);
         }
 
         .submit-btn:active {
             transform: translateY(0);
+            box-shadow: var(--shadow-md);
         }
 
         .submit-btn:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
+        .submit-btn i {
+            font-size: 1.125rem;
+        }
+
         select.form-control {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 1rem center;
-            padding-right: 2.5rem;
+            background-size: 14px;
+            padding-right: 3rem;
+            cursor: pointer;
         }
 
         .form-hint {
-            font-size: 0.75rem;
-            color: #9ca3af;
-            margin-top: 0.25rem;
+            font-size: 0.8125rem;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-weight: 500;
         }
 
-        .page-header {
-            padding: 0 1rem;
+        .form-hint::before {
+            content: '💡';
+            font-size: 0.875rem;
+        }
+
+        .mt-2 {
+            margin-top: 0.75rem !important;
+        }
+
+        /* Alert Styles */
+        .alert-modern {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-md);
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-modern.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .alert-modern.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .alert-modern i {
+            font-size: 1.25rem;
+            flex-shrink: 0;
         }
 
         /* Tablet */
         @media (max-width: 1024px) {
             .input-grid {
-                gap: 1.25rem;
+                gap: 1.5rem;
             }
 
             .input-card {
-                padding: 1.25rem;
+                padding: 1.75rem;
             }
 
             .card-icon {
-                width: 44px;
-                height: 44px;
-                font-size: 22px;
-            }
-
-            .card-title-section h3 {
-                font-size: 1.125rem;
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
             }
         }
 
         /* Mobile */
         @media (max-width: 768px) {
+            .page-header {
+                padding: 0 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .header-text h2 {
+                font-size: 1.75rem;
+            }
+
+            .header-subtitle {
+                font-size: 0.875rem;
+            }
+
+            .date-badge {
+                align-self: stretch;
+                justify-content: center;
+            }
+
             .input-grid {
                 grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 0 0.5rem;
-                margin-top: 1.5rem;
+                gap: 1.25rem;
+                padding: 0 1rem 5rem 1rem;
             }
 
             .input-card {
-                padding: 1rem;
-                border-radius: 12px;
+                padding: 1.5rem;
+                border-radius: 16px;
             }
 
             .card-header-input {
-                gap: 0.75rem;
-                margin-bottom: 1.25rem;
-                padding-bottom: 1rem;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1.25rem;
             }
 
             .card-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
+                width: 48px;
+                height: 48px;
+                font-size: 22px;
             }
 
             .card-title-section h3 {
-                font-size: 1rem;
+                font-size: 1.25rem;
             }
 
             .card-title-section p {
@@ -279,13 +487,9 @@
                 margin-bottom: 1.25rem;
             }
 
-            .form-label {
-                font-size: 0.8125rem;
-            }
-
             .form-control {
-                padding: 0.625rem 0.875rem;
-                font-size: 0.875rem;
+                padding: 0.75rem 1rem;
+                font-size: 0.9375rem;
             }
 
             .form-row {
@@ -294,62 +498,50 @@
             }
 
             .submit-btn {
-                padding: 0.875rem;
+                padding: 1rem 1.25rem;
                 font-size: 0.9375rem;
             }
 
-            .page-header {
-                padding: 0 0.5rem;
-            }
-
-            .page-header h2 {
-                font-size: 1.5rem;
-            }
-
-            .page-header .date {
-                font-size: 0.875rem;
+            .alert-modern {
+                margin: 1rem;
+                padding: 0.875rem 1rem;
             }
         }
 
         /* Small Mobile */
         @media (max-width: 480px) {
+            .header-text h2 {
+                font-size: 1.5rem;
+            }
+
             .input-card {
-                padding: 0.875rem;
+                padding: 1.25rem;
             }
 
             .card-header-input {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
+                flex-direction: row;
+                align-items: center;
             }
 
             .card-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 18px;
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+
+            .card-title-section h3 {
+                font-size: 1.125rem;
             }
 
             .form-control {
-                font-size: 0.8125rem;
-            }
-
-            .form-hint {
-                font-size: 0.6875rem;
+                padding: 0.625rem 0.875rem;
+                font-size: 0.875rem;
             }
 
             select.form-control {
                 background-position: right 0.75rem center;
-                padding-right: 2rem;
+                padding-right: 2.5rem;
             }
-        }
-
-        /* Prevent horizontal scroll */
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            overflow-x: hidden;
         }
 
         /* Touch-friendly inputs on mobile */
@@ -370,10 +562,17 @@
                 -moz-appearance: textfield;
             }
         }
+
+        /* Safe area for mobile devices */
+        @media (max-width: 768px) {
+            .input-grid {
+                padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+            }
+        }
     </style>
 
     <div class="input-grid">
-        <div class="input-card">
+        <div class="input-card blue">
             <div class="card-header-input">
                 <div class="card-icon blue">
                     <i class="bi bi-boxes"></i>
@@ -388,18 +587,24 @@
                 @csrf
                 
                 <div class="form-group">
-                    <label class="form-label">User</label>
+                    <label class="form-label">
+                        <i class="bi bi-person-fill"></i> User
+                    </label>
                     <input type="text" name="User" class="form-control" placeholder="Masukkan nama user" value="{{ old('User') }}" required>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Tanggal Produksi</label>
+                        <label class="form-label">
+                            <i class="bi bi-calendar-event"></i> Tanggal Produksi
+                        </label>
                         <input type="date" name="Tanggal_Produksi" class="form-control" value="{{ old('Tanggal_Produksi', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Shift Produksi</label>
+                        <label class="form-label">
+                            <i class="bi bi-clock-history"></i> Shift Produksi
+                        </label>
                         <select name="Shift_Produksi" class="form-control" required>
                             <option value="">Pilih Shift</option>
                             <option value="Shift 1" {{ old('Shift_Produksi') == 'Shift 1' ? 'selected' : '' }}>Shift 1</option>
@@ -410,7 +615,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Line Produksi</label>
+                    <label class="form-label">
+                        <i class="bi bi-diagram-3"></i> Line Produksi
+                    </label>
                     <select name="Line_Produksi" class="form-control" required>
                         <option value="">Pilih Line</option>
                         <option value="Line 1" {{ old('Line_Produksi') == 'Line 1' ? 'selected' : '' }}>Line 1</option>
@@ -422,25 +629,28 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Jumlah Produksi</label>
+                        <label class="form-label">
+                            <i class="bi bi-box-seam"></i> Jumlah Produksi
+                        </label>
                         <input type="number" name="Jumlah_Produksi" class="form-control" placeholder="0" value="{{ old('Jumlah_Produksi') }}" min="0" required>
-                        <div class="form-hint">Jumlah unit yang diproduksi</div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Target Produksi</label>
+                        <label class="form-label">
+                            <i class="bi bi-bullseye"></i> Target Produksi
+                        </label>
                         <input type="number" name="Target_Produksi" class="form-control" placeholder="0" value="{{ old('Target_Produksi') }}" min="0" required>
-                        <div class="form-hint">Target yang harus dicapai</div>
                     </div>
                 </div>
 
                 <button type="submit" class="submit-btn blue">
-                    <i class="bi bi-save"></i> Simpan Data Produksi
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Simpan Data Produksi</span>
                 </button>
             </form>
         </div>
 
-        <div class="input-card">
+        <div class="input-card red">
             <div class="card-header-input">
                 <div class="card-icon red">
                     <i class="bi bi-bug-fill"></i>
@@ -455,7 +665,9 @@
                 @csrf
                 
                 <div class="form-group">
-                    <label class="form-label">Pilih Data Produksi</label>
+                    <label class="form-label">
+                        <i class="bi bi-link-45deg"></i> Pilih Data Produksi
+                    </label>
                     <select name="data_produksi_id" class="form-control" required>
                         <option value="">-- Pilih Produksi --</option>
                         @foreach($produksiList as $produksi)
@@ -464,21 +676,26 @@
                             </option>
                         @endforeach
                     </select>
-                    <div class="form-hint">Pilih data produksi yang terkait dengan defect</div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tanggal Produksi</label>
+                    <label class="form-label">
+                        <i class="bi bi-calendar-event"></i> Tanggal Produksi
+                    </label>
                     <input type="date" name="Tanggal_Produksi" class="form-control" value="{{ date('Y-m-d') }}" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Nama Barang</label>
+                    <label class="form-label">
+                        <i class="bi bi-tag"></i> Nama Barang
+                    </label>
                     <input type="text" name="Nama_Barang" class="form-control" placeholder="Masukkan nama barang" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Jenis Defect</label>
+                    <label class="form-label">
+                        <i class="bi bi-exclamation-diamond"></i> Jenis Defect
+                    </label>
                     <select id="jenis_defect" name="Jenis_Defect" class="form-control" required>
                         <option value="">-- Pilih Jenis Defect --</option>
                         <option value="Bonding Gap">Bonding Gap</option>
@@ -491,18 +708,21 @@
 
                     <input type="text" id="jenis_defect_lainnya" name="Jenis_Defect_Lainnya"
                         class="form-control mt-2" placeholder="Masukkan jenis defect lainnya"
-                        style="display:none; margin-top: 0.5rem;">
+                        style="display:none;">
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Jumlah Cacat Per Jenis</label>
+                        <label class="form-label">
+                            <i class="bi bi-calculator"></i> Jumlah Cacat Per Jenis
+                        </label>
                         <input type="number" name="Jumlah_Cacat_perjenis" class="form-control" placeholder="0" min="1" required>
-                        <div class="form-hint">Jumlah unit dengan defect ini</div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Severity</label>
+                        <label class="form-label">
+                            <i class="bi bi-flag-fill"></i> Severity
+                        </label>
                         <select name="Severity" class="form-control" required>
                             <option value="">-- Pilih Tingkat Keparahan --</option>
                             <option value="Minor">Minor</option>
@@ -514,7 +734,8 @@
                 </div>
 
                 <button type="submit" class="submit-btn red">
-                    <i class="bi bi-save"></i> Simpan Data Defect
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Simpan Data Defect</span>
                 </button>
             </form>
         </div>
@@ -527,6 +748,8 @@
     setTimeout(() => {
         document.querySelectorAll('.alert-modern').forEach(alert => {
             alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-20px)';
+            alert.style.transition = 'all 0.3s ease';
             setTimeout(() => alert.remove(), 300);
         });
     }, 5000);
@@ -535,7 +758,7 @@
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', function(e) {
             const btn = this.querySelector('.submit-btn');
-            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Menyimpan...';
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i><span>Menyimpan...</span>';
             btn.disabled = true;
         });
     });

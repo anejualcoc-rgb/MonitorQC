@@ -785,17 +785,21 @@
 
             <!-- User Info -->
             <div class="user-info">
-                <div class="notification-icon">
+                <a href="{{ route('notification') }}" class="notification-icon" title="Lihat Notifikasi">
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
-                </div>
+                </a>
+
                 <div class="user-avatar">
                     <div class="avatar-placeholder">UQ</div>
-                    <span style="font-weight: 500; color: #015255ff;">USER QC</span>
+                    <div class="user-details">
+                        <span class="user-name">USER QC</span>
+                    </div>
                 </div>
-                <form action="{{ route('logout') }}" method="POST" style="margin-left: 15px;">
+
+                <form action="{{ route('logout') }}" method="POST" class="logout-form">
                     @csrf
-                    <button type="submit" class="btn btn-danger btn-sm">
+                    <button type="submit" class="btn btn-danger btn-sm btn-logout">
                         <i class="bi bi-box-arrow-right"></i>
                         <span>Logout</span>
                     </button>
