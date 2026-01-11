@@ -714,10 +714,6 @@
                     <i class="bi bi-table"></i>
                     <span>Lihat Tabel</span>
                 </a>
-                <a href="/spv/produksi/excel" class="{{ isMenuActive('spv/produksi/excel', true) }}">
-                    <i class="bi bi-file-earmark-excel-fill"></i>
-                    <span>Download Excel</span>
-                </a>
             </div>
         </div>
 
@@ -731,14 +727,6 @@
                 <a href="/spv/defect" class="{{ isMenuActive('spv/defect', true) }}">
                     <i class="bi bi-table"></i>
                     <span>Lihat Tabel</span>
-                </a>
-                <a href="/spv/defect/realtime" class="{{ isMenuActive('spv/defect/realtime', true) }}">
-                    <i class="bi bi-activity"></i>
-                    <span>Monitoring Real-Time</span>
-                </a>
-                <a href="/spv/defect/validasi" class="{{ isMenuActive('spv/defect/validasi', true) }}">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>Validasi Data</span>
                 </a>
             </div>
         </div>
