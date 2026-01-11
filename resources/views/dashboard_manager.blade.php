@@ -470,7 +470,7 @@
                     <tr>
                         <th>No</th>
                         <th>Tanggal</th>
-                        <th>Nama Barang</th>
+                        <th>Model Sepatu</th>
                         <th>Jenis Defect</th>
                         <th>Jumlah Cacat</th>
                         <th>Severity</th>

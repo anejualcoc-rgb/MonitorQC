@@ -585,8 +585,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Row 2: Line Performance (4 cols) + Top Defects (4 cols) + Notifications (4 cols) -->
         <div class="card-col-4">
             <div class="info-card">
                 <div class="card-header">

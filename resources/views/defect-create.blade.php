@@ -474,7 +474,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Model Sepatu</label>
-                    <input type="text" name="Nama_Barang" class="form-control" placeholder="Masukkan nama barang" required>
+                    <input type="text" name="Nama_Barang" class="form-control" placeholder="Masukkan Model Sepatu" required>
                 </div>
 
                 <div class="form-group">
