@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request; // <--- JANGAN LUPA TAMBAHKAN INI
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -11,10 +12,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        
+        // 1. Konfigurasi Trust Proxies LENGKAP dengan Headers
+        // Ini memberitahu Laravel untuk percaya header dari Railway (HTTPS)
+        $middleware->trustProxies(
+            at: '*',
+            headers: Request::HEADER_X_FORWARDED_FOR |
+                     Request::HEADER_X_FORWARDED_HOST |
+                     Request::HEADER_X_FORWARDED_PORT |
+                     Request::HEADER_X_FORWARDED_PROTO |
+                     Request::HEADER_X_FORWARDED_AWS_ELB
+        );
 
+        // 2. Append Middleware ForceHttps
+        // Jika konfigurasi trustProxies di atas berhasil, 
+        // middleware ini tidak akan melakukan redirect (aman).
         $middleware->append(\App\Http\Middleware\ForceHttps::class);
-    
-        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
