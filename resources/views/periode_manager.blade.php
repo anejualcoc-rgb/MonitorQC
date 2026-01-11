@@ -308,7 +308,7 @@
     <!-- Header -->
     <div class="row mb-4 align-items-center page-header">
         <div class="col-md-8">
-            <h2>Dashboard Monitoring Produksi</h2>
+            <h2>Filter Periode</h2>
             <p class="mb-0">{{ date('d F Y') }}</p>
         </div>
         <div class="col-md-4 text-md-end">

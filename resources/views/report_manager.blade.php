@@ -37,10 +37,10 @@
                                 <i class="bi bi-filter-circle me-2"></i>Tipe Laporan
                             </label>
                             <select class="form-select form-select-lg shadow-sm" name="type" id="filterType" onchange="toggleInput()" style="border-radius: 12px; border: 2px solid #e5e7eb;">
-                                <option value="daily">📅 Harian</option>
-                                <option value="monthly">📊 Bulanan</option>
-                                <option value="yearly">📈 Tahunan</option>
-                                <option value="all">🗂️ Semua Data</option>
+                                <option value="daily">Harian</option>
+                                <option value="monthly">Bulanan</option>
+                                <option value="yearly">Tahunan</option>
+                                <option value="all">Semua Data</option>
                             </select>
                         </div>
 
@@ -85,21 +85,8 @@
         <!-- Info Cards -->
         <div class="col-lg-6">
             <div class="row g-3">
-                <!-- Quick Stats -->
                 <div class="col-12">
-                    <div class="card border-0 shadow-sm" style="border-radius: 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
-                        <div class="card-body p-4 text-white">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <h6 class="mb-0 fw-semibold opacity-90">Data Hari Ini</h6>
-                                <i class="bi bi-graph-up-arrow" style="font-size: 1.5rem; opacity: 0.8;"></i>
-                            </div>
-                            <h2 class="mb-0 fw-bold">13,310</h2>
-                            <small class="opacity-90">Total produksi unit</small>
-                        </div>
-                    </div>
                 </div>
-
-                <!-- Format Info -->
                 <div class="col-12">
                     <div class="card border-0 shadow-sm" style="border-radius: 16px;">
                         <div class="card-body p-4">
@@ -116,12 +103,6 @@
                                 <small class="text-muted d-flex align-items-start">
                                     <i class="bi bi-check-circle-fill me-2 mt-1" style="color: #22c55e;"></i>
                                     <span>Termasuk data produksi, target, dan cacat</span>
-                                </small>
-                            </div>
-                            <div>
-                                <small class="text-muted d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill me-2 mt-1" style="color: #22c55e;"></i>
-                                    <span>Grafik dan analisis otomatis disertakan</span>
                                 </small>
                             </div>
                         </div>

@@ -1,7 +1,3 @@
-@extends('layouts.app')
-
-@section('content')
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -122,13 +118,15 @@
 </head>
 <body>
 
-    <div class="main-header">
-        <div class="container">
-            <div class="header-content">
-                <div class="header-title">
-                    <a href="{{ url('/dashboard') }}" class="back-btn"><i class="bi bi-arrow-left"></i></a>
-                    <h4>Notifikasi Saya</h4>
-                </div>
+        <div class="main-header">
+            <div class="container">
+                <div class="header-content">
+    <div class="header-title">
+        <a href="javascript:void(0)" onclick="window.history.back()" class="back-btn">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+    <h4>Notifikasi Saya</h4>
+</div>
                 <div class="unread-badge">
                     <i class="bi bi-bell-fill"></i>
                     {{ $Notifikasis->where('is_read', false)->count() }} Belum Dibaca
@@ -247,4 +245,3 @@
 </body>
 </html>
 
-@endsection

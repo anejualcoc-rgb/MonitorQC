@@ -1,3 +1,13 @@
+@php
+    function isMenuActive($url, $output = 'active') {
+        return request()->is($url) || request()->is($url . '/*') ? $output : '';
+    }
+    function isMenuOpen($prefix) {
+        return request()->is($prefix . '*') ? 'open' : '';
+    }
+@endphp
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -306,45 +316,52 @@
         </div>
 
         <nav class="sidebar-nav">
-            
-            <a href="{{ route('dashboard_manager') }}" class="active">
-                <i class="bi bi-house-door-fill"></i>
-                <span>Dashboard</span>
-            </a>
+    
+    <a href="{{ route('dashboard_manager') }}" class="{{ isMenuActive('manager/dashboard', 'active') }}">
+        <i class="bi bi-house-door-fill"></i>
+        <span>Dashboard</span>
+    </a>
 
-            <details class="sidebar-group">
-                <summary>
-                    <i class="bi bi-search"></i>
-                    <span>Filter & Analisis</span>
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </summary>
-                
-                <a href="{{ route('periode') }}">Filter Periode (H/M/B)</a>
-                <a href="#">Filter Kuartal & Tahun</a>
-                <a href="{{ route('line') }}">Filter Work Line</a>
-            </details>
+    <details class="sidebar-group" {{ isMenuOpen('manager/filter') }}>
+        <summary>
+            <i class="bi bi-search"></i>
+            <span>Filter & Analisis</span>
+            <i class="bi bi-chevron-down ms-auto"></i>
+        </summary>
+        
+        <a href="{{ route('periode') }}" class="{{ isMenuActive('manager/filter/periode', 'active') }}">
+            Filter Periode (H/M/B)
+        </a>
+        
+        <a href="{{ route('line') }}" class="{{ isMenuActive('manager/filter/line', 'active') }}">
+            Filter Work Line
+        </a>
+    </details>
 
-            <details class="sidebar-group">
-                <summary>
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Laporan</span>
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </summary>
-                <a href="{{ route('report_manager') }}">Export Laporan Excel</a>
-            </details>
+    <details class="sidebar-group" {{ isMenuOpen('manager/laporan') }}>
+        <summary>
+            <i class="bi bi-bar-chart-fill"></i>
+            <span>Laporan</span>
+            <i class="bi bi-chevron-down ms-auto"></i>
+        </summary>
+        
+        <a href="{{ route('report_manager') }}" class="{{ isMenuActive('manager/laporan/excel', 'active') }}">
+            Export Laporan Excel
+        </a>
+    </details>
 
-            <a href="{{ route('logout') }}" 
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-               class="mt-auto">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-            </a>
-            
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                @csrf
-            </form>
+    <a href="{{ route('logout') }}" 
+       onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+       class="mt-auto">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
+    </a>
+    
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+        @csrf
+    </form>
 
-        </nav>
+</nav>
     </div>
 
     <div class="main-content">
@@ -366,8 +383,8 @@
                     <span class="notification-badge"></span>
                 </a>
                 <div class="user-avatar">
-                    <div class="avatar-placeholder">SPV</div>
-                    <span style="font-weight: 500; color: #015255ff;">SPV QC</span>
+                    <div class="avatar-placeholder">MGR</div>
+                    <span style="font-weight: 500; color: #015255ff;">Manager Produksi</span>
                 </div>
                 <form action="{{ route('logout') }}" method="POST" style="margin-left: 15px;">
                     @csrf

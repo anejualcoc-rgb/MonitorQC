@@ -609,7 +609,6 @@
                             <option value="">Pilih Shift</option>
                             <option value="Shift 1" {{ old('Shift_Produksi') == 'Shift 1' ? 'selected' : '' }}>Shift 1</option>
                             <option value="Shift 2" {{ old('Shift_Produksi') == 'Shift 2' ? 'selected' : '' }}>Shift 2</option>
-                            <option value="Shift 3" {{ old('Shift_Produksi') == 'Shift 3' ? 'selected' : '' }}>Shift 3</option>
                         </select>
                     </div>
                 </div>
@@ -687,9 +686,9 @@
 
                 <div class="form-group">
                     <label class="form-label">
-                        <i class="bi bi-tag"></i> Nama Barang
+                        <i class="bi bi-tag"></i> Model Sepatu
                     </label>
-                    <input type="text" name="Nama_Barang" class="form-control" placeholder="Masukkan nama barang" required>
+                    <input type="text" name="Nama_Barang" class="form-control" placeholder="Masukkan Model Sepatu" required>
                 </div>
 
                 <div class="form-group">

@@ -98,20 +98,26 @@
         
         .input-wrapper { position: relative; }
         
-        /* Modifikasi agar sesuai dengan snippet user tapi tetap bagus */
         .input-icon {
             position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
             color: #9ca3af; font-size: 20px; transition: color 0.3s ease; pointer-events: none;
         }
         
+        /* Toggle password icon */
+        .toggle-password {
+            position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+            color: #9ca3af; font-size: 20px; cursor: pointer; transition: color 0.3s ease;
+            z-index: 10;
+        }
+        .toggle-password:hover { color: #015255; }
+        
         .form-control-modern {
-            width: 100%; padding: 16px 20px 16px 52px; border: 2px solid #e5e7eb;
+            width: 100%; padding: 16px 52px 16px 52px; border: 2px solid #e5e7eb;
             border-radius: 12px; font-size: 15px; transition: all 0.3s ease; background-color: #f9fafb;
         }
         .form-control-modern:focus {
             outline: none; border-color: #015255; background-color: white; box-shadow: 0 0 0 4px rgba(1, 82, 85, 0.1);
         }
-        /* Selektor ini membuat icon berubah warna saat input difokuskan */
         .form-control-modern:focus + .input-icon { color: #015255; }
         .form-control-modern::placeholder { color: #9ca3af; }
 
@@ -183,59 +189,67 @@
                     <p>Masuk ke sistem monitoring kualitas produksi</p>
                 </div>
 
-                @if($errors->any())
-                <div class="alert-modern error">
+                <div class="alert-modern error" style="display: none;" id="errorAlert">
                     <i class="bi bi-exclamation-triangle-fill"></i>
-                    <span>{{ $errors->first() }}</span>
+                    <span id="errorMessage"></span>
                 </div>
-                @endif
 
-            <form method="POST" action="{{ route('login.post') }}">
-                @csrf
-                
-                <div class="form-group">
-                    <label for="email" class="form-label">Alamat Email</label>
-                    <div class="input-wrapper">
-                        <input 
-                            type="email" 
-                            name="email" 
-                            id="email"
-                            class="form-control-modern" 
-                            placeholder="nama@perusahaan.com" 
-                            value="{{ old('email') }}"
-                            required 
-                            autofocus
-                        >
-                        <i class="bi bi-envelope-fill input-icon"></i>
+                <form method="POST" action="#" id="loginForm">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Alamat Email</label>
+                        <div class="input-wrapper">
+                            <input 
+                                type="email" 
+                                name="email" 
+                                id="email"
+                                class="form-control-modern" 
+                                placeholder="nama@perusahaan.com" 
+                                required 
+                                autofocus
+                            >
+                            <i class="bi bi-envelope-fill input-icon"></i>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label for="password" class="form-label">Kata Sandi</label>
-                    <div class="input-wrapper">
-                        <input 
-                            type="password" 
-                            name="password" 
-                            id="password"
-                            class="form-control-modern" 
-                            placeholder="Masukkan kata sandi" 
-                            required
-                        >
-                        <i class="bi bi-lock-fill input-icon"></i>
+                    <div class="form-group">
+                        <label for="password" class="form-label">Kata Sandi</label>
+                        <div class="input-wrapper">
+                            <input 
+                                type="password" 
+                                name="password" 
+                                id="password"
+                                class="form-control-modern" 
+                                placeholder="Masukkan kata sandi" 
+                                required
+                            >
+                            <i class="bi bi-lock-fill input-icon"></i>
+                            <i class="bi bi-eye-fill toggle-password" id="togglePassword"></i>
+                        </div>
                     </div>
-                </div>
-                
-                <button type="submit" class="btn-login">
-                    <i class="bi bi-box-arrow-in-right"></i>
-                    <span>Masuk ke Sistem</span>
-                </button>
-            </form>
-        </div>
-
-        <div class="login-footer">
+                    
+                    <button type="submit" class="btn-login">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span>Masuk ke Sistem</span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle password visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle icon
+            this.classList.toggle('bi-eye-fill');
+            this.classList.toggle('bi-eye-slash-fill');
+        });
+    </script>
 </body>
 </html>

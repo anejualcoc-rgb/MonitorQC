@@ -1,23 +1,23 @@
-@extends('layouts.app_spv')
-
-@section('content')
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Laporan Produksi #{{ $data->id }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
     <style>
-        body { background-color: #f4f6f9; }
+        body { 
+            background-color: #f4f6f9;
+            font-size: 16px;
+        }
         
         .detail-header {
             background: white;
-            padding: 25px 0;
+            padding: 20px 0;
             border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .status-badge {
@@ -68,102 +68,273 @@
         .kpi-value { font-size: 2rem; font-weight: 700; margin-bottom: 5px; }
         .kpi-title { font-size: 0.9rem; font-weight: 500; opacity: 0.9; }
 
-       @media print {
-        /* 1. Sembunyikan elemen Navigasi & Sidebar Dashboard */
-        .no-print, 
-        .btn, 
-        .sidebar, 
-        .top-navbar,
-        .main-header,
-        header, 
-        footer { 
-            display: none !important; 
+        /* RESPONSIVE STYLES FOR MOBILE */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+                padding-top: 0;
+            }
+
+            .detail-header {
+                padding: 12px 0;
+                margin-bottom: 15px;
+            }
+
+            .detail-header h3 {
+                font-size: 1.25rem !important;
+                margin-bottom: 8px !important;
+            }
+
+            .detail-header > .container > .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0 !important;
+            }
+
+            .detail-header .gap-3 {
+                gap: 0 !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+            }
+
+            .detail-header .no-print {
+                width: 100%;
+                margin-top: 12px;
+                display: flex !important;
+                gap: 8px;
+            }
+
+            .detail-header .no-print .btn {
+                flex: 1;
+                font-size: 0.875rem;
+                padding: 10px 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .status-badge {
+                font-size: 0.75rem;
+                padding: 4px 10px;
+                margin-top: 6px;
+                margin-bottom: 6px;
+            }
+
+            .detail-header .text-muted {
+                font-size: 0.8rem;
+                margin-top: 4px;
+            }
+
+            .data-card {
+                border-radius: 10px;
+                margin-bottom: 15px;
+            }
+
+            .data-card.p-4 {
+                padding: 16px !important;
+            }
+
+            .data-card h5 {
+                font-size: 1rem !important;
+                margin-bottom: 16px !important;
+                padding-bottom: 12px !important;
+            }
+
+            .data-card h5 i {
+                font-size: 0.9rem;
+            }
+
+            .row.g-4 {
+                row-gap: 16px !important;
+            }
+
+            .data-card .row.g-4 > div {
+                margin-bottom: 12px;
+            }
+
+            .card-label {
+                font-size: 0.7rem;
+                margin-bottom: 6px;
+                font-weight: 600;
+            }
+
+            .card-value {
+                font-size: 1rem;
+                line-height: 1.4;
+                word-break: break-word;
+            }
+
+            .kpi-card {
+                padding: 16px;
+                margin-bottom: 15px;
+                border-radius: 10px;
+            }
+
+            .kpi-value {
+                font-size: 1.75rem;
+                margin-bottom: 8px;
+            }
+
+            .kpi-title {
+                font-size: 0.85rem;
+                margin-bottom: 8px;
+            }
+
+            .kpi-card small {
+                font-size: 0.8rem;
+            }
+
+            /* Table Responsive */
+            .table {
+                font-size: 0.85rem;
+                margin-bottom: 0;
+            }
+
+            .table th,
+            .table td {
+                padding: 10px 8px;
+                vertical-align: middle;
+            }
+
+            .table thead th {
+                font-size: 0.8rem;
+                font-weight: 600;
+            }
+
+            .mt-4 {
+                margin-top: 1.25rem !important;
+            }
+
+            h6.fw-bold {
+                font-size: 0.95rem;
+                margin-bottom: 12px !important;
+            }
+
+            /* Container padding */
+            .container {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .pb-5 {
+                padding-bottom: 2rem !important;
+            }
         }
 
-        /* 2. Reset Layout Utama */
-        body, html, .content-area, .main-content {
-            background-color: white !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: auto !important;
-            overflow: visible !important;
+        /* EXTRA SMALL DEVICES */
+        @media (max-width: 480px) {
+            .detail-header h3 {
+                font-size: 1.1rem !important;
+            }
+
+            .card-value {
+                font-size: 0.95rem;
+            }
+
+            .kpi-value {
+                font-size: 1.5rem;
+            }
+
+            .table {
+                font-size: 0.8rem;
+            }
+
+            .table th,
+            .table td {
+                padding: 8px 6px;
+            }
+
+            .data-card.p-4 {
+                padding: 14px !important;
+            }
+
+            .kpi-card {
+                padding: 14px;
+            }
         }
 
-        .container {
-            max-width: 100% !important;
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
+        /* PRINT STYLES */
+        @media print {
+            .no-print, 
+            .btn, 
+            .sidebar, 
+            .top-navbar,
+            .main-header,
+            header, 
+            footer { 
+                display: none !important; 
+            }
 
-        /* 3. MEMBUAT LAYOUT MENJADI 1 KOLOM (STACKING) */
-        /* Ini kunci agar kanan tidak terpotong */
-        .row {
-            display: block !important;
-            width: 100% !important;
-            margin: 0 !important;
-        }
+            body, html, .content-area, .main-content {
+                background-color: white !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
 
-        .col-lg-8, .col-lg-4, .col-md-6 {
-            width: 100% !important;
-            flex: none !important;
-            max-width: 100% !important;
-            display: block !important;
-            padding: 0 !important;
-            margin-bottom: 20px !important;
-        }
+            .container {
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
 
-        /* 4. PERBAIKAN CARD TERPOTONG & SCROLLBAR */
-        .data-card, .kpi-card, .card {
-            box-shadow: none !important;
-            border: 1px solid #ddd !important;
+            .row {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .col-lg-8, .col-lg-4, .col-md-6 {
+                width: 100% !important;
+                flex: none !important;
+                max-width: 100% !important;
+                display: block !important;
+                padding: 0 !important;
+                margin-bottom: 20px !important;
+            }
+
+            .data-card, .kpi-card, .card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                height: auto !important; 
+                min-height: 0 !important;
+                max-height: none !important;
+                overflow: visible !important;
+                display: block !important;
+                page-break-inside: avoid !important;
+                margin-bottom: 20px !important;
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+                display: block !important;
+                width: 100% !important;
+            }
             
-            /* Paksa tinggi otomatis mengikuti isi konten */
-            height: auto !important; 
-            min-height: 0 !important;
-            max-height: none !important;
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            .detail-header {
+                border-bottom: 2px solid #000 !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 20px !important;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
             
-            /* Matikan scrollbar */
-            overflow: visible !important;
-            display: block !important;
-            
-            /* Mencegah card terbelah di tengah halaman */
-            page-break-inside: avoid !important;
-            margin-bottom: 20px !important;
+            ::-webkit-scrollbar {
+                display: none;
+            }
         }
-
-        /* 5. Tabel Full Width */
-        .table-responsive {
-            overflow: visible !important;
-            display: block !important;
-            width: 100% !important;
-        }
-        
-        table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-        }
-
-        /* 6. Header Detail */
-        .detail-header {
-            border-bottom: 2px solid #000 !important;
-            padding-bottom: 10px !important;
-            margin-bottom: 20px !important;
-        }
-
-        /* 7. Cetak Warna Background */
-        * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-        
-        /* 8. Hapus Scrollbar Bawaan Browser */
-        ::-webkit-scrollbar {
-            display: none;
-        }
-    }
-    
     </style>
 </head>
 <body>
@@ -172,20 +343,20 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <div class="d-flex align-items-center gap-3 mb-1">
+                    <div class="d-flex align-items-center gap-3 mb-1 flex-wrap">
                         <h3 class="fw-bold mb-0 text-dark">Laporan Produksi #{{ $data->id }}</h3>
                         <span class="status-badge">
                             <i class="bi bi-check-circle-fill"></i> Verified Data
                         </span>
                     </div>
-                    <p class="text-muted mb-0">Dibuat pada: {{ $data->created_at->format('d M Y, H:i') }}</p>
+                    <p class="text-muted mb-0 small">Dibuat pada: {{ $data->created_at->format('d M Y, H:i') }}</p>
                 </div>
                 <div class="d-flex gap-2 no-print">
                     <button onclick="window.print()" class="btn btn-outline-secondary">
-                        <i class="bi bi-printer"></i> Print
+                        <i class="bi bi-printer"></i> <span class="d-none d-sm-inline">Print</span>
                     </button>
-                    <a href="{{ route('dashboard_spv') }}" class="btn btn-primary">
-                        <i class="bi bi-arrow-left"></i> Kembali
+                    <a href="javascript:void(0)" onclick="window.history.back()" class="btn btn-primary">
+                         <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Kembali</span>
                     </a>
                 </div>
             </div>
@@ -218,34 +389,36 @@
                         </div>
                     </div>
 
-                    <div class="mt-5">
+                    <div class="mt-4">
                         <h6 class="fw-bold mb-3 text-secondary">Rincian Output</h6>
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Kategori</th>
-                                    <th class="text-end">Jumlah (Unit)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Target Plan</td>
-                                    <td class="text-end fw-bold">{{ number_format($data->Target_Produksi) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Output Aktual (Gross)</td>
-                                    <td class="text-end fw-bold text-primary">{{ number_format($data->Jumlah_Produksi) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Produk Cacat (Defect)</td>
-                                    <td class="text-end fw-bold text-danger">{{ number_format($data->Jumlah_Produksi_Cacat) }}</td>
-                                </tr>
-                                <tr class="table-success">
-                                    <td><strong>Output Bersih (Good Qty)</strong></td>
-                                    <td class="text-end fw-bold">{{ number_format($data->Jumlah_Produksi - $data->Jumlah_Produksi_Cacat) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Kategori</th>
+                                        <th class="text-end">Jumlah (Unit)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Target Plan</td>
+                                        <td class="text-end fw-bold">{{ number_format($data->Target_Produksi) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Output Aktual (Gross)</td>
+                                        <td class="text-end fw-bold text-primary">{{ number_format($data->Jumlah_Produksi) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Produk Cacat (Defect)</td>
+                                        <td class="text-end fw-bold text-danger">{{ number_format($data->Jumlah_Produksi_Cacat) }}</td>
+                                    </tr>
+                                    <tr class="table-success">
+                                        <td><strong>Output Bersih (Good Qty)</strong></td>
+                                        <td class="text-end fw-bold">{{ number_format($data->Jumlah_Produksi - $data->Jumlah_Produksi_Cacat) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -262,8 +435,6 @@
                         </div>
                         <small class="mt-2 d-block">Target: {{ number_format($data->Target_Produksi) }} Unit</small>
                     </div>
-                        </small>
-                    </div>
 
                 </div>
             </div>
@@ -274,5 +445,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-@endsection

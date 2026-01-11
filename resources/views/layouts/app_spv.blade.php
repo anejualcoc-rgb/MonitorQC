@@ -699,14 +699,10 @@
         </h4>
     </div>
     <nav class="sidebar-nav">
-
-        <!-- DASHBOARD -->
         <a href="/spv/dashboard" class="{{ isMenuActive('spv/dashboard', true) }}">
             <i class="bi bi-house-door-fill"></i>
             <span>Dashboard</span>
         </a>
-
-        <!-- DATA PRODUKSI (DROPDOWN) -->
         <div class="menu-group {{ isMenuOpen('spv/produksi') }}">
             <a href="javascript:void(0)" class="menu-toggle {{ isMenuActive('spv/produksi') }}">
                 <i class="bi bi-clipboard-data-fill"></i>
@@ -725,7 +721,6 @@
             </div>
         </div>
 
-        <!-- DATA DEFECT (DROPDOWN) -->
         <div class="menu-group {{ isMenuOpen('spv/defect') }}">
             <a href="javascript:void(0)" class="menu-toggle {{ isMenuActive('spv/defect') }}">
                 <i class="bi bi-exclamation-triangle-fill"></i>
