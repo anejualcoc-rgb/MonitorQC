@@ -10,19 +10,20 @@ class TempDataProduksiSeeder extends Seeder
 {
     public function run()
     {
-        // Pastikan ada user dengan ID 1 atau 2 di tabel users sebelumnya
-        // atau sesuaikan 'input_by_user_id' dengan id user yang ada.
-        
+        // Pastikan tabel kosong dulu agar tidak duplikat saat seeding ulang (opsional)
+        // DB::table('temp_data_produksi')->truncate();
+
         $data = [
             // Skenario 1: Data Bagus (Achievement Tinggi, Defect Rendah) - PENDING
             [
+                'User'                  => 'Budi Santoso', // <-- KOLOM 'User' DITAMBAHKAN
                 'Tanggal_Produksi'      => Carbon::now()->format('Y-m-d'),
                 'Line_Produksi'         => 'Line 1',
                 'Shift_Produksi'        => '1',
-                'Jumlah_Produksi'       => 1050, // Melebihi target
+                'Jumlah_Produksi'       => 1050, 
                 'Target_Produksi'       => 1000,
-                'Jumlah_Produksi_Cacat' => 5,    // Defect sangat kecil
-                'input_by_user_id'      => 1,    // Asumsi ID staff
+                'Jumlah_Produksi_Cacat' => 5,    
+                'input_by_user_id'      => 1,    
                 'status_approval'       => 'pending',
                 'catatan_revisi'        => null,
                 'created_at'            => Carbon::now(),
@@ -30,12 +31,13 @@ class TempDataProduksiSeeder extends Seeder
             ],
             // Skenario 2: Data Bermasalah (Defect Tinggi > 2%) - PENDING
             [
+                'User'                  => 'Budi Santoso', // <-- KOLOM 'User' DITAMBAHKAN
                 'Tanggal_Produksi'      => Carbon::now()->format('Y-m-d'),
                 'Line_Produksi'         => 'Line 2',
                 'Shift_Produksi'        => '2',
                 'Jumlah_Produksi'       => 900,
                 'Target_Produksi'       => 1000,
-                'Jumlah_Produksi_Cacat' => 45,   // Defect 5% (Tinggi) -> Kandidat Reject
+                'Jumlah_Produksi_Cacat' => 45,   
                 'input_by_user_id'      => 1,
                 'status_approval'       => 'pending',
                 'catatan_revisi'        => null,
@@ -44,10 +46,11 @@ class TempDataProduksiSeeder extends Seeder
             ],
             // Skenario 3: Data Kurang Target (Mesin Rusak dll) - PENDING
             [
+                'User'                  => 'Siti Aminah', // <-- KOLOM 'User' DITAMBAHKAN
                 'Tanggal_Produksi'      => Carbon::yesterday()->format('Y-m-d'),
                 'Line_Produksi'         => 'Line 3',
                 'Shift_Produksi'        => '3',
-                'Jumlah_Produksi'       => 500,  // Jauh di bawah target
+                'Jumlah_Produksi'       => 500,  
                 'Target_Produksi'       => 1000,
                 'Jumlah_Produksi_Cacat' => 2,
                 'input_by_user_id'      => 2,
@@ -58,6 +61,7 @@ class TempDataProduksiSeeder extends Seeder
             ],
             // Skenario 4: Data yang sudah pernah DITOLAK (History)
             [
+                'User'                  => 'Budi Santoso', // <-- KOLOM 'User' DITAMBAHKAN
                 'Tanggal_Produksi'      => Carbon::now()->subDays(2)->format('Y-m-d'),
                 'Line_Produksi'         => 'Line 1',
                 'Shift_Produksi'        => '1',

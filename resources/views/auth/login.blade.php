@@ -196,7 +196,6 @@
                 <div class="form-group">
                     <label for="email" class="form-label">Alamat Email</label>
                     <div class="input-wrapper">
-
                         <input 
                             type="email" 
                             name="email" 
@@ -207,6 +206,7 @@
                             required 
                             autofocus
                         >
+                        <i class="bi bi-envelope-fill input-icon"></i>
                     </div>
                 </div>
 
@@ -221,9 +221,10 @@
                             placeholder="Masukkan kata sandi" 
                             required
                         >
+                        <i class="bi bi-lock-fill input-icon"></i>
                     </div>
                 </div>
-
+                
                 <button type="submit" class="btn-login">
                     <i class="bi bi-box-arrow-in-right"></i>
                     <span>Masuk ke Sistem</span>

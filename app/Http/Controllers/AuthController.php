@@ -26,11 +26,18 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            if ($user->role === 'spv') {
-                return redirect()->route('dashboard_spv')->with('success', 'Selamat datang Supervisor QC!');
-            } elseif ($user->role === 'staff') {
-                return redirect()->route('dashboard_staff')->with('success', 'Selamat datang Staff QC!');
-            }
+        if ($user->role === 'spv') {
+            return redirect()->route('dashboard_spv')
+                ->with('success', 'Selamat datang Supervisor QC!');
+                
+        } elseif ($user->role === 'staff') {
+            return redirect()->route('dashboard_staff')
+                ->with('success', 'Selamat datang Staff QC!');
+                
+        } elseif ($user->role === 'manager') {
+            return redirect()->route('dashboard_manager')
+                ->with('success', 'Selamat datang Manager QC!');
+        }
 
             return redirect()->route('dashboard')->with('success', 'Login berhasil!');
         }

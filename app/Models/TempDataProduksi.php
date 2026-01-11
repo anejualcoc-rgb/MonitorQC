@@ -7,10 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class TempDataProduksi extends Model
 {
-    protected $table = 'temp_data_produksi';
-    protected $guarded = [];
+    use HasFactory;
 
-    public function inputer()
+    protected $table = 'temp_data_produksi';
+
+    protected $fillable = [
+        'User', 
+        'Tanggal_Produksi',
+        'Shift_Produksi',
+        'Line_Produksi',
+        'Jumlah_Produksi',
+        'Target_Produksi',
+        'Jumlah_Produksi_Cacat',
+        'input_by_user_id',
+        'status_approval',
+        'catatan_revisi'
+    ];
+
+    // Relasi ke User (Penginput)
+    public function inputter()
     {
         return $this->belongsTo(User::class, 'input_by_user_id');
     }

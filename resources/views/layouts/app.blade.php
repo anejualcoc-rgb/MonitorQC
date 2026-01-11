@@ -785,7 +785,7 @@
 
             <!-- User Info -->
             <div class="user-info">
-                <a href="{{ route('notification') }}" class="notification-icon" title="Lihat Notifikasi">
+                <a href="{{ route('notifikasi') }}" class="notification-icon" title="Lihat Notifikasi">
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
                 </a>

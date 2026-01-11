@@ -6,66 +6,132 @@ use Illuminate\Http\Request;
 use App\Models\DataProduksi;
 use App\Models\TempDataProduksi;
 use App\Models\Notifikasi;
+use Illuminate\Support\Facades\DB;
 
 class ApprovalController extends Controller
 {
-    // Menampilkan detail data pending sebelum diapprove
+    public function index()
+    {
+        $pendingData = TempDataProduksi::where('status_approval', 'pending')
+                        ->orderBy('created_at', 'desc')
+                        ->paginate(10);
+
+        return view('approval.index', compact('pendingData'));
+    }
+
     public function preview($id)
     {
         $tempData = TempDataProduksi::findOrFail($id);
+
+        // Validasi: Jika data sudah tidak pending, jangan kasih akses edit/approve lagi
+        if ($tempData->status_approval !== 'pending') {
+            return redirect()->route('dashboard_spv')
+                ->with('error', 'Data ini sudah diproses (Status: ' . $tempData->status_approval . ').');
+        }
+
         return view('approval.preview', compact('tempData'));
     }
 
     // Aksi Menyetujui Data
-    public function approve($id)
+public function approve($id)
     {
         $tempData = TempDataProduksi::findOrFail($id);
 
-        // 1. Pindahkan data dari Temp ke Tabel Asli (DataProduksi)
-        DataProduksi::create([
-            'Tanggal_Produksi' => $tempData->Tanggal_Produksi,
-            'Line_Produksi'    => $tempData->Line_Produksi,
-            'Shift_Produksi'   => $tempData->Shift_Produksi,
-            'Jumlah_Produksi'  => $tempData->Jumlah_Produksi,
-            'Target_Produksi'  => $tempData->Target_Produksi,
-            'Jumlah_Produksi_Cacat' => $tempData->Jumlah_Produksi_Cacat,
-            // Field lain sesuaikan...
-        ]);
+        // Cek status agar tidak double approve
+        if ($tempData->status_approval !== 'pending') {
+            return redirect()->route('dashboard_spv')->with('warning', 'Data sudah diproses sebelumnya.');
+        }
 
-        // 2. Kirim Notifikasi Balik ke Staff QC
-        Notifikasi::create([
-            'user_id' => $tempData->input_by_user_id,
-            'judul'   => 'Data Produksi Disetujui',
-            'pesan'   => 'Data produksi tanggal ' . $tempData->Tanggal_Produksi . ' telah disetujui Manager.',
-            'tipe'    => 'sistem',
-            'is_read' => false
-        ]);
+        DB::transaction(function () use ($tempData) {
+            // 1. Pindahkan data ke Tabel Asli (DataProduksi)
+            $newData = DataProduksi::create([
+                'User'                  => $tempData->User, 
+                'Tanggal_Produksi'      => $tempData->Tanggal_Produksi,
+                'Shift_Produksi'        => $tempData->Shift_Produksi,
+                'Line_Produksi'         => $tempData->Line_Produksi,
+                'Jumlah_Produksi'       => $tempData->Jumlah_Produksi,
+                'Target_Produksi'       => $tempData->Target_Produksi,
+                'Jumlah_Produksi_Cacat' => $tempData->Jumlah_Produksi_Cacat,
+            ]);
 
-        // 3. Hapus data dari Temp (karena sudah masuk tabel asli)
-        $tempData->delete();
+            // 2. Update Status Temp Data
+            $tempData->update(['status_approval' => 'approved']);
 
-        return redirect()->route('dashboard_spv')->with('success', 'Data berhasil disetujui dan masuk ke laporan utama.');
+            // 3. Update Notifikasi SPV yang sedang login (Tandai sudah dibaca)
+            Notifikasi::where('reference_id', $tempData->id)
+                      ->where('user_id', auth()->id()) 
+                      ->update(['is_read' => true]);
+            
+            $targetUserIds = [1, 2, 3]; 
+
+            foreach ($targetUserIds as $targetId) {
+                if ($targetId == auth()->id()) continue;
+
+                if ($targetId == $tempData->input_by_user_id) {
+                    Notifikasi::create([
+                        'user_id' => $targetId,
+                        'judul'   => 'Data Produksi Disetujui ✅',
+                        'pesan'   => 'Data Line ' . $tempData->Line_Produksi . ' (' . $tempData->Tanggal_Produksi . ') Anda telah disetujui.',
+                        'tipe'    => 'info',
+                        'is_read' => false
+                    ]);
+                } else {
+                    // --- Notif untuk MANAGER/SPV LAIN (User 1 atau 3) ---
+                    Notifikasi::create([
+                        'user_id' => $targetId,
+                        'judul'   => 'Laporan Produksi Baru ',
+                        'pesan'   => 'Laporan resmi Line ' . $tempData->Line_Produksi . ' baru saja diterbitkan.',
+                        'tipe'    => 'info', // Tipe Info (Warna Hijau/Biru)
+                        'data'    => [
+                            'action_url' => route('produksi.show', $newData->id) 
+                        ],
+                        'is_read' => false
+                    ]);
+                }
+            }
+        });
+
+        return redirect()->route('dashboard_spv')->with('success', 'Data berhasil disetujui. Notifikasi telah dikirim ke User 1, 2, dan 3.');
     }
-
+ 
+    
     // Aksi Menolak Data
     public function reject(Request $request, $id)
     {
+        $request->validate(['alasan' => 'required|string|max:255']);
+        
         $tempData = TempDataProduksi::findOrFail($id);
-        $alasan = $request->input('alasan', 'Data tidak valid');
 
-        // 1. Kirim Notifikasi Penolakan ke Staff QC
-        Notifikasi::create([
-            'user_id' => $tempData->input_by_user_id,
-            'judul'   => 'Data Produksi Ditolak',
-            'pesan'   => 'Data ditolak. Alasan: ' . $alasan,
-            'tipe'    => 'alert', // Merah
-            'data'    => ['old_data' => $tempData->toArray()], // Opsional: kembalikan data lama biar bisa diedit
-            'is_read' => false
+        if ($tempData->status_approval !== 'pending') {
+            return redirect()->route('dashboard_spv')->with('warning', 'Data sudah diproses sebelumnya.');
+        }
+
+        // 1. Update Status jadi Rejected (JANGAN DI DELETE)
+        $tempData->update([
+            'status_approval' => 'rejected',
+            // Pastikan di tabel temp_data_produksi ada kolom 'catatan_reject' (opsional)
+            // 'catatan_reject' => $request->alasan 
         ]);
 
-        // 2. Hapus data temp (atau ubah status jadi 'rejected' jika ingin menyimpan history)
-        $tempData->delete(); 
+        // 2. Tandai Notifikasi SPV sebagai terbaca
+        Notifikasi::where('reference_id', $tempData->id)->update(['is_read' => true]);
 
-        return redirect()->route('dashboard_spv')->with('error', 'Data telah ditolak.');
+        // 3. Kirim Notifikasi ke Staff QC untuk Revisi
+        Notifikasi::create([
+            'user_id'      => $tempData->input_by_user_id,
+            'judul'        => 'Data Produksi Ditolak',
+            'pesan'        => 'Data Line ' . $tempData->Line_Produksi . ' ditolak. Alasan: ' . $request->alasan,
+            'tipe'         => 'alert', // Warna merah
+            
+            // Kita hubungkan lagi ke data temp yang sama agar staff bisa klik dan edit
+            'reference_id' => $tempData->id, 
+            'data'         => [
+                // Arahkan ke halaman edit ulang bagi staff
+                'action_url' => route('datainput.edit', $tempData->id) 
+            ],
+            'is_read'      => false
+        ]);
+
+        return redirect()->route('dashboard_spv')->with('success', 'Data telah ditolak dan dikembalikan ke staff.');
     }
 }

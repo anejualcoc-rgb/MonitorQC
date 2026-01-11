@@ -18,85 +18,122 @@
     @endif
 
     <div class="page-header">
-        <h2>Dashboard Monitoring Produksi</h2>
+        <h2>Dashboard Overview</h2>
         <div class="date">
             <i class="bi bi-calendar3"></i> {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
         </div>
     </div>
 
     @php
+        // Summary calculations
         $totalProduksi = $data->sum('Jumlah_Produksi');
         $totalTarget = $data->sum('Target_Produksi');
         $totalCacat = $data->sum('Jumlah_Produksi_Cacat');
-        $persentaseCacat = $totalProduksi > 0 ? ($totalCacat / $totalProduksi) * 100 : 0;
+        $achievement = $totalTarget > 0 ? ($totalProduksi / $totalTarget) * 100 : 0;
+        $defectRate = $totalProduksi > 0 ? ($totalCacat / $totalProduksi) * 100 : 0;
 
-        // trend data: group by tanggal (format Y-m-d)
-        $trendGrouped = $data->groupBy(function($item) {
-            return \Carbon\Carbon::parse($item->Tanggal_Produksi)->format('Y-m-d');
-        })->map(function($group) {
-            return $group->sum('Jumlah_Produksi');
+        // Critical defects
+        $criticalDefects = $data_defect->where('Severity', 'Critical')->sum('Jumlah_Cacat_perjenis');
+        
+        // Line performance
+        $lineGrouped = $data->groupBy('Line_Produksi')->map(function($g) {
+            return [
+                'produksi' => $g->sum('Jumlah_Produksi'),
+                'target' => $g->sum('Target_Produksi'),
+                'cacat' => $g->sum('Jumlah_Produksi_Cacat')
+            ];
         });
+        
+        // Best performing line
+        $bestLine = $lineGrouped->sortByDesc(function($item) {
+            return $item['target'] > 0 ? ($item['produksi'] / $item['target']) * 100 : 0;
+        })->first();
+        $bestLineName = $lineGrouped->search($bestLine);
+        $bestLineAchievement = $bestLine['target'] > 0 ? ($bestLine['produksi'] / $bestLine['target']) * 100 : 0;
 
-        $trendLabels = $trendGrouped->keys()->values();
-        $trendData = $trendGrouped->values()->map(function($v){ return (int) $v; });
+        // Trend (last 7 days)
+        $last7Days = $data->where('Tanggal_Produksi', '>=', \Carbon\Carbon::now()->subDays(7))
+            ->groupBy(function($item) {
+                return \Carbon\Carbon::parse($item->Tanggal_Produksi)->format('Y-m-d');
+            })->map(function($g) {
+                return $g->sum('Jumlah_Produksi');
+            })->sortKeys();
 
-        // distribusi by line
-        $lineGrouped = $data->groupBy('Line_Produksi')->map(function($g){ return $g->sum('Jumlah_Produksi'); });
-
-        // shift summary
-        $shiftGrouped = $data->groupBy('Shift_Produksi')->map(function($g){ return $g->sum('Jumlah_Produksi'); });
-
-        // severity distribution from data_defect
-        $severityGrouped = $data_defect->groupBy('Severity')->map(function($g){ return $g->sum('Jumlah_Cacat_perjenis'); });
-
-        // top defect types
-        $defectTypes = $data_defect->groupBy('Jenis_Defect')->map(function($g){ return $g->sum('Jumlah_Cacat_perjenis'); });
-        $topDefects = $defectTypes->sortDesc()->take(10);
-
-        // distribution labels/data for charts
-        $distribusiLabels = $lineGrouped->keys();
-        $distribusiData = $lineGrouped->values();
-
-        $shiftLabels = $shiftGrouped->keys();
-        $shiftData = $shiftGrouped->values();
+        // Top defect types
+        $topDefects = $data_defect->groupBy('Jenis_Defect')
+            ->map(function($g) {
+                return $g->sum('Jumlah_Cacat_perjenis');
+            })->sortDesc()->take(5);
     @endphp
 
     <style>
-        /* Download Box */
-        .download-box {
-            background: #f8f9fa;
-            padding: 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            display: block;
-            margin-bottom: 1rem;
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-btn {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: #1f2937;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-color: #015255ff;
+            color: #015255ff;
+        }
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .action-icon.blue { background: #eff6ff; color: #1e40af; }
+        .action-icon.green { background: #f0fdf4; color: #15803d; }
+        .action-icon.orange { background: #fff7ed; color: #c2410c; }
+        .action-icon.red { background: #fef2f2; color: #b91c1c; }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-title {
+            font-weight: 600;
+            font-size: 1rem;
         }
 
         @media (max-width: 768px) {
-            .download-box {
-                margin: 0 0.5rem 1rem 0.5rem;
+            .quick-actions {
+                grid-template-columns: 1fr;
+                padding: 0 0.5rem;
             }
         }
 
-        .download-btn {
-            background-color: #015255ff;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-block;
-            width: 100%;
-            text-align: center;
-        }
-
-        .download-btn:hover {
-            background-color: #013d3f;
-            text-decoration: none;
-            color: white;
-        }
-
-        /* Stats Grid Responsive */
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -110,101 +147,270 @@
                 gap: 0.75rem;
                 padding: 0 0.5rem;
             }
-            
-            .stat-card {
-                padding: 1rem;
-            }
-            
-            .stat-value {
-                font-size: 1.5rem !important;
-            }
-            
-            .stat-icon i {
-                font-size: 1.5rem !important;
-            }
         }
 
-        /* Chart Grid Responsive */
-        .chart-grid {
+        /* Cards Grid - OPTIMIZED */
+        .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(12, 1fr);
             gap: 1.5rem;
             margin-bottom: 1.5rem;
         }
 
         @media (max-width: 768px) {
-            .chart-grid {
+            .cards-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
                 padding: 0 0.5rem;
             }
         }
 
-        /* Chart Card */
-        .chart-card {
-            overflow: visible;
+        .card-col-8 { grid-column: span 8; }
+        .card-col-4 { grid-column: span 4; }
+        .card-col-6 { grid-column: span 6; }
+        .card-col-3 { grid-column: span 3; }
+        .card-col-9 { grid-column: span 9; }
+        .card-col-12 { grid-column: span 12; }
+
+        @media (max-width: 768px) {
+            .card-col-8, .card-col-4, .card-col-6, .card-col-3, .card-col-9 {
+                grid-column: span 1;
+            }
+        }
+
+        /* Info Card */
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: 100%;
         }
 
-        /* Chart Canvas Height */
-        .chart-canvas {
-            position: relative;
-            height: 300px;
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-action {
+            font-size: 0.875rem;
+            color: #015255ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .card-action:hover {
+            color: #013d3f;
+        }
+
+        /* Recent Items */
+        .recent-item {
             padding: 1rem;
-            overflow: visible;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+
+        .recent-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .recent-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .recent-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .recent-desc {
+            font-size: 0.813rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .recent-time {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .recent-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Performance List */
+        .performance-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .performance-item:last-child {
+            border-bottom: none;
+        }
+
+        .performance-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .performance-rank {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .performance-rank.top { background: #fef3c7; color: #92400e; }
+
+        .performance-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .performance-right {
+            text-align: right;
+        }
+
+        .performance-value {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #1f2937;
+        }
+
+        .performance-percent {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 280px;
         }
 
         @media (max-width: 768px) {
-            .chart-canvas {
-                height: 280px;
-                padding: 1rem 0.5rem;
-            }
-            
-            .chart-card {
-                margin-bottom: 1rem;
+            .chart-container {
+                height: 250px;
             }
         }
 
-        /* Table Responsive */
-        .table-card {
-            overflow-x: auto;
-            margin-bottom: 1.5rem;
+        /* Best Performer Card */
+        .best-performer-content {
+            text-align: center;
+            padding: 1.5rem 1rem;
         }
 
-        @media (max-width: 768px) {
-            .table-card {
-                margin: 0 0.5rem 1.5rem 0.5rem;
-            }
+        .trophy-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
         }
 
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+        .best-line-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
         }
 
-        .modern-table {
-            width: 100%;
-            min-width: 800px;
+        .best-achievement {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
         }
 
-        @media (max-width: 768px) {
-            .modern-table {
-                font-size: 0.875rem;
-            }
-            
-            .modern-table th,
-            .modern-table td {
-                padding: 0.5rem;
-                white-space: nowrap;
-            }
-            
-            .badge {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.5rem;
-            }
+        .achievement-label {
+            color: #6b7280;
+            font-size: 0.875rem;
         }
 
-        /* Page Header Responsive */
+        .best-stats {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f3f4f6;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .best-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .best-stat-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .best-stat-value.red {
+            color: #ef4444;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #9ca3af;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* Page Header */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -224,65 +430,43 @@
             .page-header h2 {
                 font-size: 1.5rem;
             }
-            
-            .page-header .date {
-                font-size: 0.875rem;
-            }
-        }
-
-        /* Chart Header Responsive */
-        .chart-header {
-            padding: 1rem;
-        }
-
-        @media (max-width: 768px) {
-            .chart-header {
-                padding: 0.75rem;
-            }
-            
-            .chart-title {
-                font-size: 0.95rem;
-            }
-        }
-
-        /* Top Production List */
-        .top-production-list {
-            padding: 1rem;
-        }
-
-        @media (max-width: 768px) {
-            .top-production-list {
-                padding: 0.75rem;
-            }
-            
-            .production-item {
-                padding: 0.5rem 0 !important;
-                font-size: 0.875rem;
-            }
-        }
-
-        /* Alert Responsive */
-        @media (max-width: 768px) {
-            .alert-modern {
-                padding: 0.75rem;
-                font-size: 0.875rem;
-            }
-        }
-
-        /* Utility Classes */
-        @media (max-width: 576px) {
-            .mb-4 {
-                margin-bottom: 1rem !important;
-            }
         }
     </style>
 
-    <div class="download-box">
-        <a href="{{ route('export') }}" class="download-btn">
-            <i class="bi bi-download"></i> Download Data Excel
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="{{ route('produksi.index_spv') }}" class="action-btn">
+            <div class="action-icon blue">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="action-content">
+                <div class="action-label">Lihat Detail</div>
+                <div class="action-title">Data Produksi</div>
+            </div>
+        </a>
+
+        <a href="{{ route('defect.index_spv') }}" class="action-btn">
+            <div class="action-icon red">
+                <i class="bi bi-bug"></i>
+            </div>
+            <div class="action-content">
+                <div class="action-label">Lihat Detail</div>
+                <div class="action-title">Data Defect</div>
+            </div>
+        </a>
+
+        <a href="{{ route('export') }}" class="action-btn">
+            <div class="action-icon green">
+                <i class="bi bi-download"></i>
+            </div>
+            <div class="action-content">
+                <div class="action-label">Download</div>
+                <div class="action-title">Export Excel</div>
+            </div>
         </a>
     </div>
 
+    <!-- Summary Stats -->
     <div class="stats-grid">
         <div class="stat-card blue">
             <div class="stat-header">
@@ -290,28 +474,28 @@
                     <div class="stat-label">Total Produksi</div>
                     <div class="stat-value">{{ number_format($totalProduksi) }}</div>
                     <div class="stat-change positive">
-                        <i class="bi bi-arrow-up"></i>
-                        <span>vs last month</span>
+                        <i class="bi bi-boxes"></i>
+                        <span>Unit diproduksi</span>
                     </div>
                 </div>
                 <div class="stat-icon">
-                    <i class="bi bi-boxes"></i>
+                    <i class="bi bi-box-seam"></i>
                 </div>
             </div>
         </div>
 
-        <div class="stat-card green">
+        <div class="stat-card {{ $achievement >= 100 ? 'green' : 'orange' }}">
             <div class="stat-header">
                 <div>
-                    <div class="stat-label">Total Target</div>
-                    <div class="stat-value">{{ number_format($totalTarget) }}</div>
-                    <div class="stat-change positive">
-                        <i class="bi bi-arrow-up"></i>
-                        <span>vs last month</span>
+                    <div class="stat-label">Achievement</div>
+                    <div class="stat-value">{{ number_format($achievement, 1) }}%</div>
+                    <div class="stat-change {{ $achievement >= 100 ? 'positive' : 'negative' }}">
+                        <i class="bi bi-{{ $achievement >= 100 ? 'check-circle' : 'dash-circle' }}"></i>
+                        <span>{{ $achievement >= 100 ? 'Target tercapai' : 'Dari target' }}</span>
                     </div>
                 </div>
                 <div class="stat-icon">
-                    <i class="bi bi-bullseye"></i>
+                    <i class="bi bi-graph-up-arrow"></i>
                 </div>
             </div>
         </div>
@@ -319,15 +503,15 @@
         <div class="stat-card red">
             <div class="stat-header">
                 <div>
-                    <div class="stat-label">Total Cacat</div>
-                    <div class="stat-value">{{ number_format($totalCacat) }}</div>
+                    <div class="stat-label">Defect Rate</div>
+                    <div class="stat-value">{{ number_format($defectRate, 2) }}%</div>
                     <div class="stat-change negative">
-                        <i class="bi bi-arrow-down"></i>
-                        <span>vs last month</span>
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>{{ number_format($totalCacat) }} unit cacat</span>
                     </div>
                 </div>
                 <div class="stat-icon">
-                    <i class="bi bi-exclamation-triangle"></i>
+                    <i class="bi bi-x-octagon"></i>
                 </div>
             </div>
         </div>
@@ -335,215 +519,284 @@
         <div class="stat-card orange">
             <div class="stat-header">
                 <div>
-                    <div class="stat-label">Persentase Cacat</div>
-                    <div class="stat-value">{{ number_format($persentaseCacat, 1) }}%</div>
-                    <div class="stat-change positive">
-                        <i class="bi bi-arrow-up"></i>
-                        <span>improvement</span>
+                    <div class="stat-label">Critical Defects</div>
+                    <div class="stat-value">{{ number_format($criticalDefects) }}</div>
+                    <div class="stat-change negative">
+                        <i class="bi bi-shield-exclamation"></i>
+                        <span>Perlu perhatian</span>
                     </div>
                 </div>
                 <div class="stat-icon">
-                    <i class="bi bi-percent"></i>
+                    <i class="bi bi-exclamation-octagon"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="chart-grid">
-        <div class="chart-card">
-            <div class="chart-header">
-                <div class="chart-title">
-                    <i class="bi bi-graph-up"></i>
-                    Trend Produksi Harian
-                </div>
-            </div>
-            <div class="chart-canvas">
-                <canvas id="produksiChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-card">
-            <div class="chart-header">
-                <div class="chart-title">
-                    <i class="bi bi-pie-chart-fill"></i>
-                    Distribusi Produksi (By Line)
-                </div>
-            </div>
-            <div class="chart-canvas">
-                <canvas id="distribusiChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="chart-grid">
-        <div class="chart-card">
-            <div class="chart-header">
-                <div class="chart-title">
-                    <i class="bi bi-clock"></i>
-                    Produksi per Shift
-                </div>
-            </div>
-            <div class="chart-canvas">
-                <canvas id="shiftChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-card">
-            <div class="chart-header">
-                <div class="chart-title">
-                    <i class="bi bi-diagram-3"></i>
-                    Top Produksi by Line
-                </div>
-            </div>
-            <div class="top-production-list">
-                @foreach($distribusiData as $i => $val)
-                <div class="production-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <i class="bi bi-gear-fill" style="color: #6366f1; font-size: 1.25rem;"></i>
-                        <span style="font-weight: 500;">{{ $distribusiLabels[$i] }}</span>
+    <!-- Main Content Grid - REORGANIZED -->
+    <div class="cards-grid">
+        <!-- Row 1: Production Trend (9 cols) + Best Performer (3 cols) -->
+        <div class="card-col-9">
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="bi bi-graph-up"></i>
+                        Trend Produksi (7 Hari Terakhir)
                     </div>
-                    <span style="font-weight: 600; color: #1f2937;">{{ number_format($val) }}</span>
+                    <a href="{{ route('produksi.index_spv') }}" class="card-action">
+                        Lihat Semua <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
-                @endforeach
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="table-card">
-        <div class="chart-header" style="margin-bottom: 1rem;">
-            <div class="chart-title">
-                <i class="bi bi-table"></i>
-                Data Produksi Detail
+        <div class="card-col-3">
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="bi bi-trophy-fill"></i>
+                        Line Terbaik
+                    </div>
+                </div>
+                <div class="best-performer-content">
+                    <div class="trophy-icon">
+                        <i class="bi bi-trophy-fill"></i>
+                    </div>
+                    <div class="best-line-name">{{ $bestLineName }}</div>
+                    <div class="best-achievement">{{ number_format($bestLineAchievement, 1) }}%</div>
+                    <div class="achievement-label">Achievement Rate</div>
+                    <div class="best-stats">
+                        <div>
+                            <div class="best-stat-value">{{ number_format($bestLine['produksi']) }}</div>
+                            <div class="best-stat-label">Produksi</div>
+                        </div>
+                        <div>
+                            <div class="best-stat-value">{{ number_format($bestLine['target']) }}</div>
+                            <div class="best-stat-label">Target</div>
+                        </div>
+                        <div>
+                            <div class="best-stat-value red">{{ number_format($bestLine['cacat']) }}</div>
+                            <div class="best-stat-label">Cacat</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="modern-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>User</th>
-                        <th>Tanggal</th>
-                        <th>Shift</th>
-                        <th>Line</th>
-                        <th>Produksi</th>
-                        <th>Target</th>
-                        <th>Cacat</th>
-                        <th>Achievement</th>
-                        <th>Defect Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($data as $index => $row)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $row->User }}</td>
-                        <td>{{ \Carbon\Carbon::parse($row->Tanggal_Produksi)->format('d/m/Y') }}</td>
-                        <td><span class="badge badge-blue">{{ $row->Shift_Produksi }}</span></td>
-                        <td><span class="badge badge-gray">{{ $row->Line_Produksi }}</span></td>
-                        <td>{{ number_format($row->Jumlah_Produksi) }}</td>
-                        <td>{{ number_format($row->Target_Produksi) }}</td>
-                        <td><span class="badge badge-red">{{ number_format($row->Jumlah_Produksi_Cacat) }}</span></td>
-                        <td>
-                            @php
-                                $achievement = $row->Target_Produksi > 0 ? ($row->Jumlah_Produksi / $row->Target_Produksi) * 100 : 0;
-                                $badgeClass = $achievement >= 100 ? 'badge-green' : ($achievement >= 80 ? 'badge-orange' : 'badge-red');
-                            @endphp
-                            <span class="badge {{ $badgeClass }}">{{ number_format($achievement, 2) }}%</span>
-                        </td>
-                        <td>
-                            @php
-                                $defectRate = $row->Jumlah_Produksi > 0 ? ($row->Jumlah_Produksi_Cacat / $row->Jumlah_Produksi) * 100 : 0;
-                            @endphp
-                            {{ number_format($defectRate, 2) }}%
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <div class="table-card">
-        <div class="chart-header" style="margin-bottom: 1rem;">
-            <div class="chart-title">
-                <i class="bi bi-bug"></i>
-                Data Defect Detail
+        <!-- Row 2: Line Performance (4 cols) + Top Defects (4 cols) + Notifications (4 cols) -->
+        <div class="card-col-4">
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="bi bi-award"></i>
+                        Performa Line Produksi
+                    </div>
+                </div>
+                <div>
+                    @php
+                        $linePerformance = $lineGrouped->map(function($item, $line) {
+                            return [
+                                'line' => $line,
+                                'produksi' => $item['produksi'],
+                                'achievement' => $item['target'] > 0 ? ($item['produksi'] / $item['target']) * 100 : 0
+                            ];
+                        })->sortByDesc('achievement')->values();
+                    @endphp
+
+                    @forelse($linePerformance as $index => $perf)
+                        <div class="performance-item">
+                            <div class="performance-left">
+                                <div class="performance-rank {{ $index < 3 ? 'top' : '' }}">
+                                    {{ $index + 1 }}
+                                </div>
+                                <div>
+                                    <div class="performance-name">{{ $perf['line'] }}</div>
+                                </div>
+                            </div>
+                            <div class="performance-right">
+                                <div class="performance-value">{{ number_format($perf['produksi']) }}</div>
+                                <div class="performance-percent">{{ number_format($perf['achievement'], 1) }}%</div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <div>Tidak ada data</div>
+                        </div>
+                    @endforelse
+                </div>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="modern-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Tanggal</th>
-                        <th>Nama Barang</th>
-                        <th>Jenis Defect</th>
-                        <th>Jumlah Cacat</th>
-                        <th>Severity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($data_defect as $index => $defect)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ \Carbon\Carbon::parse($defect->Tanggal_Produksi)->format('d/m/Y') }}</td>
-                        <td>{{ $defect->Nama_Barang }}</td>
-                        <td>{{ $defect->Jenis_Defect }}</td>
-                        <td><span class="badge badge-orange">{{ number_format($defect->Jumlah_Cacat_perjenis) }}</span></td>
-                        <td>
-                            @php
-                                $severityBadge = $defect->Severity === 'Critical' ? 'badge-red' : ($defect->Severity === 'Major' ? 'badge-orange' : 'badge-blue');
-                            @endphp
-                            <span class="badge {{ $severityBadge }}">{{ $defect->Severity }}</span>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+
+        <div class="card-col-4">
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="bi bi-bug-fill"></i>
+                        Top 5 Jenis Defect
+                    </div>
+                    <a href="{{ route('defect.index_spv') }}" class="card-action">
+                        Lihat Semua <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="chart-container">
+                    <canvas id="defectChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-col-4">
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="bi bi-bell"></i>
+                        Notifikasi Terbaru
+                    </div>
+                </div>
+                <div>
+                    @php
+                        $notifications = [
+                            [
+                                'type' => 'critical',
+                                'title' => 'Critical Defect Detected',
+                                'desc' => 'Line A mencapai 5 critical defects',
+                                'time' => '2 jam lalu',
+                                'icon' => 'exclamation-triangle-fill',
+                                'bg' => '#fef2f2',
+                                'color' => '#b91c1c'
+                            ],
+                            [
+                                'type' => 'achievement',
+                                'title' => 'Target Tercapai',
+                                'desc' => 'Line B mencapai 105% target hari ini',
+                                'time' => '4 jam lalu',
+                                'icon' => 'check-circle-fill',
+                                'bg' => '#f0fdf4',
+                                'color' => '#15803d'
+                            ],
+                            [
+                                'type' => 'warning',
+                                'title' => 'Produksi Menurun',
+                                'desc' => 'Line C produksi turun 15% dari kemarin',
+                                'time' => '6 jam lalu',
+                                'icon' => 'info-circle-fill',
+                                'bg' => '#fff7ed',
+                                'color' => '#c2410c'
+                            ],
+                        ];
+                    @endphp
+
+                    @forelse($notifications as $notif)
+                        <div class="recent-item">
+                            <div class="recent-icon" style="background: {{ $notif['bg'] }}; color: {{ $notif['color'] }}">
+                                <i class="bi bi-{{ $notif['icon'] }}"></i>
+                            </div>
+                            <div class="recent-content">
+                                <div class="recent-title">{{ $notif['title'] }}</div>
+                                <div class="recent-desc">{{ $notif['desc'] }}</div>
+                                <div class="recent-time">
+                                    <i class="bi bi-clock"></i> {{ $notif['time'] }}
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="empty-state">
+                            <i class="bi bi-bell-slash"></i>
+                            <div>Tidak ada notifikasi</div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Pending Approvals (Full Width) -->
+        <div class="card-col-12">
+            <div class="info-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="bi bi-clipboard-check"></i>
+                        Menunggu Approval
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                    @php
+                        $approvals = [
+                            [
+                                'title' => 'Laporan Produksi Shift 1',
+                                'user' => 'Operator A',
+                                'date' => '10 Jan 2026',
+                                'status' => 'pending',
+                                'badge_class' => 'badge-orange',
+                                'badge_text' => 'Pending'
+                            ],
+                            [
+                                'title' => 'Adjustment Target Line B',
+                                'user' => 'Supervisor B',
+                                'date' => '09 Jan 2026',
+                                'status' => 'pending',
+                                'badge_class' => 'badge-orange',
+                                'badge_text' => 'Pending'
+                            ],
+                            [
+                                'title' => 'Laporan Defect Shift 3',
+                                'user' => 'QC Team',
+                                'date' => '09 Jan 2026',
+                                'status' => 'review',
+                                'badge_class' => 'badge-blue',
+                                'badge_text' => 'In Review'
+                            ],
+                        ];
+                    @endphp
+
+                    @forelse($approvals as $approval)
+                        <div class="recent-item" style="border: 1px solid #f3f4f6; border-radius: 8px; margin: 0;">
+                            <div class="recent-icon" style="background: #eff6ff; color: #1e40af;">
+                                <i class="bi bi-file-text"></i>
+                            </div>
+                            <div class="recent-content">
+                                <div class="recent-title">{{ $approval['title'] }}</div>
+                                <div class="recent-desc">Dari: {{ $approval['user'] }}</div>
+                                <div class="recent-time">
+                                    <i class="bi bi-calendar"></i> {{ $approval['date'] }}
+                                </div>
+                            </div>
+                            <span class="recent-badge {{ $approval['badge_class'] }}">
+                                {{ $approval['badge_text'] }}
+                            </span>
+                        </div>
+                    @empty
+                        <div class="empty-state">
+                            <i class="bi bi-check-all"></i>
+                            <div>Semua sudah disetujui</div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
         </div>
     </div>
 @endsection
 
 @push('scripts')
 <script>
-    // Data from server
-    const produksiData = @json($data);
-    const defectData = @json($data_defect);
+    // Trend Chart Data
+    const trendLabels = @json($last7Days->keys()->values());
+    const trendData = @json($last7Days->values()->map(function($v){ return (int) $v; }));
 
-    // Trend labels & data (unique dates)
-    const produksiByDate = {};
-    const defectByDate = {};
+    // Top Defects Data
+    const defectLabels = @json($topDefects->keys()->values());
+    const defectData = @json($topDefects->values()->map(function($v){ return (int) $v; }));
 
-    produksiData.forEach(d => {
-        const date = d.Tanggal_Produksi;
-        produksiByDate[date] = (produksiByDate[date] || 0) + Number(d.Jumlah_Produksi);
-    });
-
-    defectData.forEach(d => {
-        const date = d.Tanggal_Produksi;
-        defectByDate[date] = (defectByDate[date] || 0) + Number(d.Jumlah_Cacat_perjenis || d.Jumlah_Produksi_Cacat || 0);
-    });
-
-    const trendLabels = Object.keys(produksiByDate);
-    const trendProduksi = Object.values(produksiByDate);
-    const trendDefect = trendLabels.map(l => defectByDate[l] || 0);
-
-    // Chart.js responsive config
+    // Responsive options
     const responsiveOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        layout: {
-            padding: {
-                left: window.innerWidth > 768 ? 10 : 5,
-                right: window.innerWidth > 768 ? 10 : 5,
-                top: window.innerWidth > 768 ? 10 : 5,
-                bottom: window.innerWidth > 768 ? 10 : 5
-            }
-        },
         plugins: {
             legend: {
                 display: window.innerWidth > 768,
-                position: window.innerWidth > 768 ? 'top' : 'bottom',
+                position: 'top',
                 labels: {
                     boxWidth: window.innerWidth > 768 ? 40 : 20,
                     padding: window.innerWidth > 768 ? 10 : 5,
@@ -551,112 +804,68 @@
                         size: window.innerWidth > 768 ? 12 : 10
                     }
                 }
-            }
-        },
-        scales: {
-            x: {
-                ticks: {
-                    font: {
-                        size: window.innerWidth > 768 ? 12 : 9
-                    },
-                    maxRotation: window.innerWidth > 768 ? 45 : 90,
-                    minRotation: window.innerWidth > 768 ? 0 : 45,
-                    autoSkip: true,
-                    maxTicksLimit: window.innerWidth > 768 ? 10 : 5
-                }
             },
-            y: {
-                ticks: {
-                    font: {
-                        size: window.innerWidth > 768 ? 12 : 9
-                    }
-                }
+            tooltip: {
+                enabled: true
             }
         }
     };
 
-    // Produksi Chart
-    new Chart(document.getElementById('produksiChart'), {
+    // Trend Chart
+    new Chart(document.getElementById('trendChart'), {
         type: 'line',
         data: {
             labels: trendLabels,
             datasets: [{
-                label: 'Produksi',
-                data: trendProduksi,
+                label: 'Produksi Harian',
+                data: trendData,
                 borderColor: '#6366f1',
-                backgroundColor: 'rgba(99,102,241,0.08)',
+                backgroundColor: 'rgba(99,102,241,0.1)',
                 fill: true,
-                tension: 0.3
-            }, {
-                label: 'Cacat',
-                data: trendDefect,
-                borderColor: '#ef4444',
-                backgroundColor: 'rgba(239,68,68,0.08)',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: responsiveOptions
-    });
-
-    // Distribusi by Line (doughnut)
-    new Chart(document.getElementById('distribusiChart'), {
-        type: 'doughnut',
-        data: {
-            labels: @json($distribusiLabels),
-            datasets: [{
-                data: @json($distribusiData),
-                backgroundColor: ['#6366f1','#f59e0b','#10b981','#ef4444','#6f42c1','#0dcaf0']
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                borderWidth: 2
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '65%',
-            layout: {
-                padding: {
-                    left: window.innerWidth > 768 ? 10 : 5,
-                    right: window.innerWidth > 768 ? 10 : 5,
-                    top: window.innerWidth > 768 ? 10 : 5,
-                    bottom: window.innerWidth > 768 ? 10 : 5
-                }
-            },
-            plugins: {
-                legend: {
-                    position: window.innerWidth > 768 ? 'right' : 'bottom',
-                    labels: {
-                        boxWidth: window.innerWidth > 768 ? 15 : 12,
-                        padding: window.innerWidth > 768 ? 10 : 8,
-                        font: {
-                            size: window.innerWidth > 768 ? 12 : 10
-                        }
+            ...responsiveOptions,
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: window.innerWidth > 768 ? 11 : 9 },
+                        maxRotation: 45,
+                        minRotation: 0
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: {
+                        font: { size: window.innerWidth > 768 ? 11 : 9 }
                     }
                 }
             }
         }
     });
 
-    // Shift chart
-    new Chart(document.getElementById('shiftChart'), {
-        type: 'pie',
+    // Defect Chart
+    new Chart(document.getElementById('defectChart'), {
+        type: 'doughnut',
         data: {
-            labels: @json($shiftLabels),
+            labels: defectLabels,
             datasets: [{
-                data: @json($shiftData),
-                backgroundColor: ['#0dcaf0','#ffc107','#6f42c1']
+                data: defectData,
+                backgroundColor: ['#ef4444','#f59e0b','#eab308','#84cc16','#22c55e'],
+                borderWidth: 2,
+                borderColor: '#fff'
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    left: window.innerWidth > 768 ? 10 : 5,
-                    right: window.innerWidth > 768 ? 10 : 5,
-                    top: window.innerWidth > 768 ? 10 : 5,
-                    bottom: window.innerWidth > 768 ? 10 : 5
-                }
-            },
+            cutout: '60%',
             plugins: {
                 legend: {
                     position: window.innerWidth > 768 ? 'right' : 'bottom',
@@ -664,7 +873,18 @@
                         boxWidth: window.innerWidth > 768 ? 15 : 12,
                         padding: window.innerWidth > 768 ? 10 : 8,
                         font: {
-                            size: window.innerWidth > 768 ? 12 : 10
+                            size: window.innerWidth > 768 ? 11 : 9
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
                         }
                     }
                 }

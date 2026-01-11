@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Notification extends Model
+class Notifikasi extends Model
 {
     use HasFactory;
 
-    protected $table = 'notifikasi'; // Sesuai nama tabel di migrasi
+    protected $table = 'notifikasi';
 
     protected $fillable = [
         'user_id',
@@ -17,20 +17,25 @@ class Notification extends Model
         'pesan',
         'tipe',
         'data',
+        'reference_id', 
         'is_read',
         'read_at',
     ];
 
-    // Mengubah kolom JSON 'data' menjadi array otomatis
     protected $casts = [
         'data' => 'array',
         'is_read' => 'boolean',
         'read_at' => 'datetime',
     ];
 
-    // Relasi ke User
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function tempDataProduksi()
+    {
+        // Pastikan nama model TempDataProduksi sudah benar namespace-nya
+        return $this->belongsTo(TempDataProduksi::class, 'reference_id');
     }
 }

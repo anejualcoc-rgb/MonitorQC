@@ -1,4 +1,4 @@
-@extends('layouts.app_spv')
+@extends('layouts.app_manager')
 
 @section('title', 'Dashboard Monitoring Produksi')
 
@@ -276,12 +276,6 @@
             }
         }
     </style>
-
-    <div class="download-box">
-        <a href="{{ route('export') }}" class="download-btn">
-            <i class="bi bi-download"></i> Download Data Excel
-        </a>
-    </div>
 
     <div class="stats-grid">
         <div class="stat-card blue">

@@ -1,3 +1,15 @@
+@php
+    // Fungsi untuk cek apakah menu aktif
+    function isMenuActive($url, $output = 'active') {
+        return request()->is($url) || request()->is($url . '/*') ? $output : '';
+    }
+
+    // Fungsi untuk cek apakah dropdown harus terbuka
+    function isMenuOpen($prefix) {
+        return request()->is($prefix . '*') ? 'open' : '';
+    }
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -584,35 +596,178 @@
             color: var(--primary-blue);
             margin-bottom: 0.5rem;
         }
+
+        .menu-group .menu-toggle {
+            cursor: pointer;
+        }
+
+        .submenu {
+            display: none;
+            flex-direction: column;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .submenu a {
+            padding-left: 3.5rem;
+            font-size: 0.9rem;
+        }
+
+        .menu-group.open .submenu {
+            display: flex;
+        }
+
+        .menu-group.open .menu-toggle .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .menu-toggle .bi-chevron-down {
+            transition: transform 0.3s ease;
+        }
+
+        .menu-group .menu-toggle {
+        cursor: pointer;
+        position: relative;
+    }
+
+    .submenu {
+        display: none;
+        flex-direction: column;
+        background: rgba(255,255,255,0.05);
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.3s ease;
+    }
+
+    .submenu a {
+        padding-left: 3.5rem;
+        font-size: 0.9rem;
+    }
+
+    .menu-group.open .submenu {
+        display: flex;
+        max-height: 500px; /* Sesuaikan dengan jumlah item submenu */
+    }
+
+    .menu-group.open .menu-toggle .bi-chevron-down {
+        transform: rotate(180deg);
+    }
+
+    .menu-toggle .bi-chevron-down {
+        transition: transform 0.3s ease;
+        margin-left: auto;
+    }
+
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
     </style>
 </head>
-<body>
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+<script>
+    // Inisialisasi Dropdown Menu
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuToggles = document.querySelectorAll('.menu-toggle');
 
-    <!-- Sidebar -->
+        menuToggles.forEach(toggle => {
+            toggle.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const parent = this.closest('.menu-group');
+
+                // Tutup dropdown lain (opsional, untuk single accordion)
+                document.querySelectorAll('.menu-group').forEach(group => {
+                    if (group !== parent) {
+                        group.classList.remove('open');
+                    }
+                });
+
+                // Toggle dropdown yang diklik
+                parent.classList.toggle('open');
+            });
+        });
+    });
+</script>
+
+<body>
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h4>
-                <span class="logo">E</span>
-                <span>E-Monitor QC</span>
-            </h4>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="#" class="active">
-                <i class="bi bi-grid-fill"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="#">
-                <i class="bi bi-bar-chart-fill"></i>
-                <span>Analytics</span>
-            </a>
-            <a href="#">
-                <i class="bi bi-gear-fill"></i>
-                <span>Settings</span>
-            </a>
-        </nav>
+    <div class="sidebar-header">
+        <h4>
+            <span class="logo">E</span>
+            <span>E-Monitor QC</span>
+        </h4>
     </div>
+    <nav class="sidebar-nav">
+
+        <!-- DASHBOARD -->
+        <a href="/spv/dashboard" class="{{ isMenuActive('spv/dashboard', true) }}">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <!-- DATA PRODUKSI (DROPDOWN) -->
+        <div class="menu-group {{ isMenuOpen('spv/produksi') }}">
+            <a href="javascript:void(0)" class="menu-toggle {{ isMenuActive('spv/produksi') }}">
+                <i class="bi bi-clipboard-data-fill"></i>
+                <span>Data Produksi</span>
+                <i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <div class="submenu">
+                <a href="/spv/produksi" class="{{ isMenuActive('spv/produksi', true) }}">
+                    <i class="bi bi-table"></i>
+                    <span>Lihat Tabel</span>
+                </a>
+                <a href="/spv/produksi/excel" class="{{ isMenuActive('spv/produksi/excel', true) }}">
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                    <span>Download Excel</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- DATA DEFECT (DROPDOWN) -->
+        <div class="menu-group {{ isMenuOpen('spv/defect') }}">
+            <a href="javascript:void(0)" class="menu-toggle {{ isMenuActive('spv/defect') }}">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Data Defect</span>
+                <i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <div class="submenu">
+                <a href="/spv/defect" class="{{ isMenuActive('spv/defect', true) }}">
+                    <i class="bi bi-table"></i>
+                    <span>Lihat Tabel</span>
+                </a>
+                <a href="/spv/defect/realtime" class="{{ isMenuActive('spv/defect/realtime', true) }}">
+                    <i class="bi bi-activity"></i>
+                    <span>Monitoring Real-Time</span>
+                </a>
+                <a href="/spv/defect/validasi" class="{{ isMenuActive('spv/defect/validasi', true) }}">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Validasi Data</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="menu-group {{ isMenuOpen('spv/laporan') }}">
+            <a href="javascript:void(0)" class="menu-toggle {{ isMenuActive('spv/laporan') }}">
+                <i class="bi bi-file-text-fill"></i>
+                <span>Laporan</span>
+                <i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <div class="submenu">
+                <a href="/report/spv" class="{{ isMenuActive('/report/spv', true) }}">
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                    <span>Download Excel</span>
+                </a>
+            </div>
+        </div>
+        <a href="/approval/list" class="{{ isMenuActive('/approval/list', true) }}">
+            <i class="bi bi-clipboard-check-fill"></i>
+            <span>Approval</span>
+        </a>
+
+    </nav>
+</div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -633,10 +788,10 @@
 
             <!-- User Info -->
             <div class="user-info">
-                <div class="notification-icon">
+                <a href="{{ route('notifikasi') }}" class="notification-icon" title="Lihat Notifikasi">
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
-                </div>
+                </a>
                 <div class="user-avatar">
                     <div class="avatar-placeholder">SPV</div>
                     <span style="font-weight: 500; color: #015255ff;">SPV QC</span>

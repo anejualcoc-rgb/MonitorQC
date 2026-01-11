@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('temp_data_produksi', function (Blueprint $table) {
             $table->id();
-            // ... Copy semua kolom dari data_produksi di sini ...
+            
+            $table->string('User'); 
             $table->date('Tanggal_Produksi');
             $table->string('Line_Produksi');
             $table->string('Shift_Produksi');
@@ -19,10 +20,15 @@ return new class extends Migration
             $table->integer('Jumlah_Produksi_Cacat');
             
             // Kolom Tambahan untuk Approval
-            $table->foreignId('input_by_user_id')->constrained('users'); // Siapa yang input
-            $table->string('status_approval')->default('pending'); // pending, approved, rejected
-            $table->text('catatan_revisi')->nullable(); // Jika direject manager
+            $table->foreignId('input_by_user_id')->constrained('users'); 
+            $table->string('status_approval')->default('pending'); 
+            $table->text('catatan_revisi')->nullable(); 
             $table->timestamps();
         });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('temp_data_produksi');
     }
 };
