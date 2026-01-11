@@ -169,17 +169,13 @@
                         </li>
                         <li class="feature-item">
                             <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
-                            <div class="feature-text"><h4>Analisis Tren</h4><p>Visualisasi tren defect bulanan.</p></div>
+                            <div class="feature-text"><h4>Analisis Tren</h4><p>Visualisasi tren produksi dan defect harian, mingguan, dan bulanan.</p></div>
                         </li>
                         <li class="feature-item">
                             <div class="feature-icon"><i class="bi bi-people-fill"></i></div>
                             <div class="feature-text"><h4>Multi-User Access</h4><p>Akses terpusat untuk semua divisi.</p></div>
                         </li>
                     </ul>
-                    <div class="stats-grid">
-                        <div class="stat-card"><div class="stat-number">5</div><div class="stat-label">Work Station</div></div>
-                        <div class="stat-card"><div class="stat-number">960</div><div class="stat-label">Output/Hari</div></div>
-                    </div>
                 </div>
             </div>
 
