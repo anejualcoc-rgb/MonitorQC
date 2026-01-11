@@ -189,24 +189,29 @@
                     <i class="bi bi-exclamation-triangle-fill"></i>
                     <span id="errorMessage"></span>
                 </div>
+                    <form method="POST" action="{{ route('login') }}" id="loginForm">
+                        @csrf
 
-                <form method="POST" action="#" id="loginForm">
-                    <div class="form-group">
-                        <label for="email" class="form-label">Alamat Email</label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="email" 
-                                name="email" 
-                                id="email"
-                                class="form-control-modern" 
-                                placeholder="nama@perusahaan.com" 
-                                required 
-                                autofocus
-                            >
-                            <i class="bi bi-envelope-fill input-icon"></i>
+                        <div class="form-group">
+                            <label for="email" class="form-label">Alamat Email</label>
+                            <div class="input-wrapper">
+                                <input 
+                                    type="email" 
+                                    name="email" 
+                                    id="email"
+                                    class="form-control-modern @error('email') is-invalid @enderror" 
+                                    placeholder="nama@perusahaan.com" 
+                                    required 
+                                    autofocus
+                                    value="{{ old('email') }}"
+                                >
+                                <i class="bi bi-envelope-fill input-icon"></i>
+                            </div>
+                            {{-- Menampilkan pesan error validasi email --}}
+                            @error('email')
+                                <small class="text-danger mt-1">{{ $message }}</small>
+                            @enderror
                         </div>
-                    </div>
-
                     <div class="form-group">
                         <label for="password" class="form-label">Kata Sandi</label>
                         <div class="input-wrapper">
