@@ -20,6 +20,7 @@ class ForgotPasswordController extends Controller
     // 2. Kirim Link Reset ke Email
     public function sendResetLinkEmail(Request $request)
     {
+        set_time_limit(120);
         $request->validate(['email' => 'required|email']);
 
         // Kirim link reset password
