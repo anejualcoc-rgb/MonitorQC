@@ -62,36 +62,41 @@ public function approve($id)
                       ->where('user_id', auth()->id()) 
                       ->update(['is_read' => true]);
             
-            $targetUserIds = [1, 2, 3]; 
+            // ============================================================
+            // 4. LOGIKA NOTIFIKASI BARU (BERDASARKAN ROLE)
+            // ============================================================
 
-            foreach ($targetUserIds as $targetId) {
-                if ($targetId == auth()->id()) continue;
+            // A. Kirim Notifikasi KHUSUS ke Staff Penginput (Personal)
+            Notifikasi::create([
+                'user_id' => $tempData->input_by_user_id,
+                'judul'   => 'Data Produksi Disetujui',
+                'pesan'   => 'Data Line ' . $tempData->Line_Produksi . ' (' . $tempData->Tanggal_Produksi . ') Anda telah disetujui.',
+                'tipe'    => 'info',
+                'is_read' => false
+            ]);
 
-                if ($targetId == $tempData->input_by_user_id) {
-                    Notifikasi::create([
-                        'user_id' => $targetId,
-                        'judul'   => 'Data Produksi Disetujui ✅',
-                        'pesan'   => 'Data Line ' . $tempData->Line_Produksi . ' (' . $tempData->Tanggal_Produksi . ') Anda telah disetujui.',
-                        'tipe'    => 'info',
-                        'is_read' => false
-                    ]);
-                } else {
-                    // --- Notif untuk MANAGER/SPV LAIN (User 1 atau 3) ---
-                    Notifikasi::create([
-                        'user_id' => $targetId,
-                        'judul'   => 'Laporan Produksi Baru ',
-                        'pesan'   => 'Laporan resmi Line ' . $tempData->Line_Produksi . ' baru saja diterbitkan.',
-                        'tipe'    => 'info', // Tipe Info (Warna Hijau/Biru)
-                        'data'    => [
-                            'action_url' => route('produksi.show', $newData->id) 
-                        ],
-                        'is_read' => false
-                    ]);
-                }
+            // B. Kirim Notifikasi UMUM ke Semua MANAGER (dan SPV lain)
+            // Cari semua user yang jabatannya 'manager' (bisa ditambah 'spv' jika mau SPV lain juga tau)
+            $recipients = \App\Models\User::whereIn('role', ['manager']) 
+                            ->where('id', '!=', auth()->id()) // Jangan kirim ke diri sendiri (SPV yg approve)
+                            ->where('id', '!=', $tempData->input_by_user_id) // Jangan kirim ke staff penginput (sudah dapat notif A)
+                            ->get();
+
+            foreach ($recipients as $recipient) {
+                Notifikasi::create([
+                    'user_id' => $recipient->id, // ID Manager A, Manager B, dst...
+                    'judul'   => 'Laporan Produksi Baru ',
+                    'pesan'   => 'Laporan resmi Line ' . $tempData->Line_Produksi . ' baru saja diterbitkan.',
+                    'tipe'    => 'info', 
+                    'data'    => [
+                        'action_url' => route('produksi.show', $newData->id) 
+                    ],
+                    'is_read' => false
+                ]);
             }
         });
 
-        return redirect()->route('dashboard_spv')->with('success', 'Data berhasil disetujui. Notifikasi telah dikirim ke User 1, 2, dan 3.');
+        return redirect()->route('dashboard_spv')->with('success', 'Data berhasil disetujui. Notifikasi telah dikirim ke Staff dan seluruh Manager.');
     }
  
     

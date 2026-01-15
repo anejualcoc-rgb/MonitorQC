@@ -36,6 +36,19 @@ class UserSeeder extends Seeder
             'password' => Hash::make('manager123'),
             'role' => 'manager'
         ]
+
+        
+    );
+
+            User::updateOrCreate(
+        ['email' => 'inuriadi73@gmail.com'],
+        [
+            'name' => 'Manager Production',
+            'password' => Hash::make('iqmal123'),
+            'role' => 'manager'
+        ]
+
+        
     );
 
     }
