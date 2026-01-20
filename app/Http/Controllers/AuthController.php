@@ -65,24 +65,22 @@ class AuthController extends Controller
         // Validasi Input
         $request->validate([
             'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users,email', // Cek email unik di tabel users
-            'password'  => 'required|min:6|confirmed', // 'confirmed' menuntut adanya input name="password_confirmation"
-            'role'      => 'required|in:staff,spv,manager', // Batasi pilihan role
+            'email'     => 'required|email|unique:users,email', 
+            'password'  => 'required|min:6|confirmed', 
+            'role'      => 'required|in:staff,spv,manager', 
         ], [
             'email.unique'       => 'Email ini sudah terdaftar.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'password.min'       => 'Password minimal 6 karakter.'
         ]);
 
-        // Buat User Baru
         User::create([
             'name'     => $request->name,
             'email'    => $request->email,
-            'password' => Hash::make($request->password), // Enkripsi password
+            'password' => Hash::make($request->password), 
             'role'     => $request->role,
         ]);
 
-        // Redirect ke Login dengan pesan sukses
         return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
     }
 }

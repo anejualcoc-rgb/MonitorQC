@@ -14,18 +14,9 @@ public function up()
         
         $table->string('judul');
         $table->text('pesan');
-        $table->string('tipe')->default('info'); // approval, info, alert
-        
-        // --- INI PERUBAHAN PENTING ---
-        // 1. Kolom reference_id menyimpan ID dari TempDataProduksi
-        // 2. nullable() karena notifikasi tipe 'info' tidak butuh relasi ini
+        $table->string('tipe')->default('info'); 
         $table->unsignedBigInteger('reference_id')->nullable();
-        
-        // 3. Foreign Key Optional (Jika ingin strict consistency)
-        // Hati-hati: Jika TempDataProduksi dihapus, notifikasi approval ini juga hilang
-        // $table->foreign('reference_id')->references('id')->on('temp_data_produksi')->onDelete('cascade');
-        
-        $table->json('data')->nullable(); // Sisa data lain (url, metadata)
+        $table->json('data')->nullable();
         $table->boolean('is_read')->default(false);
         $table->timestamps();
     });

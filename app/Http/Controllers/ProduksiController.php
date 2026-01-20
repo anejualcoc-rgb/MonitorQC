@@ -83,10 +83,8 @@ class ProduksiController extends Controller
 
     public function show($id)
     {
-        // Ambil data dari tabel utama (DataProduksi), bukan Temp
         $data = DataProduksi::findOrFail($id);
 
-        // Hitung statistik sederhana untuk ditampilkan di view
         $achievement = $data->Target_Produksi > 0 
             ? ($data->Jumlah_Produksi / $data->Target_Produksi) * 100 
             : 0;

@@ -14,31 +14,25 @@ class DefectInfoController extends Controller
         $bulan = $request->input('bulan');
         $tahun = $request->input('tahun');
 
-        // Query data defect dengan relasi ke produksi
         $query = DataDefect::with('produksi');
 
-        // Filter berdasarkan bulan
         if ($bulan) {
             $query->whereMonth('Tanggal_Produksi', $bulan);
         }
 
-        // Filter berdasarkan tahun
         if ($tahun) {
             $query->whereYear('Tanggal_Produksi', $tahun);
         }
 
         $data = $query->orderBy('Tanggal_Produksi', 'desc')->get();
 
-        // Get available years
         $availableYears = DataDefect::selectRaw('YEAR(Tanggal_Produksi) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');
 
-        // Summary Statistics
         $totalDefect = $data->sum('Jumlah_Cacat_perjenis');
         
-        // Total produksi dari data yang ter-filter
         $totalProduksi = 0;
         if ($bulan || $tahun) {
             $produksiQuery = DataProduksi::query();
@@ -55,8 +49,6 @@ class DefectInfoController extends Controller
 
         $defectRate = $totalProduksi > 0 ? ($totalDefect / $totalProduksi) * 100 : 0;
 
-        // PERBAIKAN: Format data untuk chart (key-value sederhana)
-        // Group by Jenis Defect
         $jenisDefectGrouped = $data->groupBy('Jenis_Defect')
             ->map(function ($items) {
                 return $items->sum('Jumlah_Cacat_perjenis');
@@ -66,14 +58,12 @@ class DefectInfoController extends Controller
             })
             ->toArray();
 
-        // Group by Severity
         $severityGrouped = $data->groupBy('Severity')
             ->map(function ($items) {
                 return $items->sum('Jumlah_Cacat_perjenis');
             })
             ->toArray();
 
-        // PERBAIKAN UTAMA: Group by Product (Top 10)
         $productGrouped = $data->groupBy('Nama_Barang')
             ->map(function ($items) {
                 return $items->sum('Jumlah_Cacat_perjenis');
@@ -81,10 +71,9 @@ class DefectInfoController extends Controller
             ->sortByDesc(function ($value) {
                 return $value;
             })
-            ->take(10) // Ambil top 10 produk
+            ->take(10) 
             ->toArray();
 
-        // Trend per tanggal
         $trendGrouped = $data->groupBy(function ($item) {
             return \Carbon\Carbon::parse($item->Tanggal_Produksi)->format('d/m/Y');
         })
@@ -94,7 +83,6 @@ class DefectInfoController extends Controller
             ->sortKeys()
             ->toArray();
 
-        // Severity counts
         $criticalCount = $data->where('Severity', 'Critical')->sum('Jumlah_Cacat_perjenis');
         $majorCount = $data->where('Severity', 'Major')->sum('Jumlah_Cacat_perjenis');
         $minorCount = $data->where('Severity', 'Minor')->sum('Jumlah_Cacat_perjenis');

@@ -19,7 +19,6 @@ return new class extends Migration
             $table->integer('Target_Produksi');
             $table->integer('Jumlah_Produksi_Cacat');
             
-            // Kolom Tambahan untuk Approval
             $table->foreignId('input_by_user_id')->constrained('users'); 
             $table->string('status_approval')->default('pending'); 
             $table->text('catatan_revisi')->nullable(); 

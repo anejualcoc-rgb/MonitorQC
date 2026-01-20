@@ -31,14 +31,12 @@ class ExcelExportController extends Controller
         $filterData = [];
         $fileName = 'Laporan-Produksi';
 
-        // Logika penamaan file dan pengambilan data filter
         switch ($type) {
             case 'daily':
                 $filterData = ['date' => $request->input('date')];
                 $fileName .= '-Harian-' . $filterData['date'];
                 break;
             case 'monthly':
-                // Input month biasanya format "YYYY-MM"
                 $filterData = ['month' => $request->input('month')]; 
                 $fileName .= '-Bulanan-' . $filterData['month'];
                 break;
@@ -53,7 +51,6 @@ class ExcelExportController extends Controller
 
         $fileName .= '.xlsx';
 
-        // Kirim $type dan $filterData ke Class Export Utama
         return Excel::download(new DataExportManager($type, $filterData), $fileName);
     }
 
@@ -64,7 +61,6 @@ class ExcelExportController extends Controller
         $filterData = [];
         $fileName = 'Laporan-Produksi';
 
-        // Logika penamaan file dan pengambilan data filter
         switch ($type) {
             case 'daily':
                 $filterData = ['date' => $request->input('date')];
@@ -86,7 +82,6 @@ class ExcelExportController extends Controller
 
         $fileName .= '.xlsx';
 
-        // Kirim $type dan $filterData ke Class Export Utama
         return Excel::download(new DataExportManager($type, $filterData), $fileName);
     }
 }

@@ -27,7 +27,6 @@
             --hover-shadow: 0 4px 16px rgba(99, 102, 241, 0.12);
         }
 
-        /* ===== TAMBAHAN UNTUK RESPONSIVE STATS GRID ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);

@@ -768,22 +768,18 @@
         </nav>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Top Navbar -->
+
         <nav class="top-navbar">
-            <!-- Hamburger Menu (Mobile Only) -->
             <div class="hamburger-menu" id="hamburgerMenu">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
 
-            <!-- Search Box -->
             <div class="search-box">
             </div>
 
-            <!-- User Info -->
             <div class="user-info">
                 <a href="{{ route('notifikasi') }}" class="notification-icon" title="Lihat Notifikasi">
                     <i class="bi bi-bell-fill"></i>
@@ -807,7 +803,6 @@
             </div>
         </nav>
 
-        <!-- Content Area -->
         <div class="content-area">
             @yield('content')
         </div>
@@ -815,7 +810,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Mobile Menu Toggle
         const hamburgerMenu = document.getElementById('hamburgerMenu');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');

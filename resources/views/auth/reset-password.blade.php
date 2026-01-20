@@ -303,7 +303,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Toggle password visibility for new password
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
 
@@ -314,7 +313,6 @@
             this.classList.toggle('bi-eye-slash-fill');
         });
 
-        // Toggle password visibility for confirmation
         const togglePasswordConfirm = document.getElementById('togglePasswordConfirm');
         const passwordConfirmInput = document.getElementById('password_confirmation');
 

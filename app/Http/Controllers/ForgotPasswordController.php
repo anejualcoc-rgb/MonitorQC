@@ -11,19 +11,16 @@ use Illuminate\Support\Str;
 
 class ForgotPasswordController extends Controller
 {
-    // 1. Tampilkan Form Input Email
     public function showLinkRequestForm()
     {
         return view('auth.forgot-password');
     }
 
-    // 2. Kirim Link Reset ke Email
     public function sendResetLinkEmail(Request $request)
     {
         set_time_limit(120);
         $request->validate(['email' => 'required|email']);
 
-        // Kirim link reset password
         $status = Password::sendResetLink(
             $request->only('email')
         );
@@ -35,7 +32,6 @@ class ForgotPasswordController extends Controller
         return back()->withErrors(['email' => __($status)]);
     }
 
-    // 3. Tampilkan Form Reset Password Baru
     public function showResetForm(Request $request, $token = null)
     {
         return view('auth.reset-password')->with(
@@ -43,13 +39,12 @@ class ForgotPasswordController extends Controller
         );
     }
 
-    // 4. Proses Update Password Baru
     public function reset(Request $request)
     {
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:6|confirmed', // Pastikan ada input name="password_confirmation" di view
+            'password' => 'required|min:6|confirmed', 
         ]);
 
         $status = Password::reset(

@@ -24,7 +24,6 @@ class TempDataProduksi extends Model
         'catatan_revisi'
     ];
 
-    // Relasi ke User (Penginput)
     public function inputter()
     {
         return $this->belongsTo(User::class, 'input_by_user_id');

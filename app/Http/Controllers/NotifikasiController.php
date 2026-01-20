@@ -17,16 +17,14 @@ class NotifikasiController extends Controller
         $userId = Auth::id();
 
         $Notifikasis = Notifikasi::where('user_id', $userId)
-            ->orderBy('is_read', 'asc')       // Tampilkan yang belum dibaca dulu
-            ->orderBy('created_at', 'desc')   // Kemudian urutkan dari yang terbaru
-            ->paginate(10);                   // Batasi 10 per halaman
+            ->orderBy('is_read', 'asc')      
+            ->orderBy('created_at', 'desc')  
+            ->paginate(10);                  
 
         return view('Notifikasi', compact('Notifikasis'));
     }
 
-    /**
-     * (Opsional) Menandai Notifikasi sudah dibaca
-     */
+
     public function markAsRead($id)
     {
         $Notifikasi = Notifikasi::where('user_id', Auth::id())

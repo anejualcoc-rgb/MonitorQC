@@ -557,7 +557,6 @@
 
 @push('scripts')
 <script>
-    // Prepare data from backend
     const trendData = @json($trendGrouped);
     const lineData = @json($lineGrouped);
     const shiftData = @json($shiftGrouped);
@@ -583,7 +582,6 @@
         return target > 0 ? (produksi / target * 100).toFixed(1) : 0;
     });
 
-    // Responsive options
     const responsiveOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -713,7 +711,6 @@
         }
     });
 
-    // Achievement Chart
     new Chart(document.getElementById('achievementChart'), {
         type: 'bar',
         data: {
